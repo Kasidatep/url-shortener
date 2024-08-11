@@ -1,5 +1,4 @@
 import dotenv from "dotenv";
-import { url } from "inspector";
 dotenv.config();
 
 export const env = {
@@ -8,7 +7,7 @@ export const env = {
   },
   app: {
     name: process.env.APP_NAME || "KasP - Shortener URL",
-    url: process.env.APP_URL || "http://localhost:3000",
+    url: process.env.APP_URL || "https://short.kasidate.me",
     port: process.env.APP_PORT || 3000,
   },
 };
