@@ -8,6 +8,7 @@ export default function Home() {
   const searchParams = useSearchParams();
   const redirect = searchParams.get("redirect");
 
+
   const [originalUrl, setOriginalUrl] = useState("");
   const [shortUrl, setShortUrl] = useState("");
   const [loading, setLoading] = useState(false);
