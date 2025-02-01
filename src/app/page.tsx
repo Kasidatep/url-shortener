@@ -2,11 +2,13 @@
 
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { LockClosedIcon, CalendarIcon, InformationCircleIcon } from '@heroicons/react/24/solid';
+import { LockClosedIcon, CalendarIcon, InformationCircleIcon, ClipboardDocumentIcon, QrCodeIcon } from '@heroicons/react/24/solid';
 import { Tooltip } from 'react-tooltip';
 import Footer from '@/components/Footer';
+import QRCodeComponent  from '@/components/QRCodeComponent';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import { CopyToClipboard } from 'react-copy-to-clipboard';
 
 export default function Home() {
   const [url, setUrl] = useState('');
@@ -18,7 +20,8 @@ export default function Home() {
   const [passwordType, setPasswordType] = useState<'none' | 'lock'>('none')
   const [maxClicks, setMaxClicks] = useState('');
   const [expirationDate, setExpirationDate] = useState('');
-  const [errorCode, setErrorCode] = useState(0)
+  const [showQRCode, setShowQRCode] = useState(false);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -283,20 +286,51 @@ export default function Home() {
             Shorten URL
           </button>
         </form>
-
         {shortUrl && (
-          <div className="mt-6 p-4 bg-gray-50 rounded-md">
-            <p className="text-sm text-gray-600">Short URL:</p>
+        <div className="mt-6 p-4 bg-gray-50 rounded-md space-y-4">
+          <p className="text-sm text-gray-600">Short URL:</p>
+          <div className="flex items-center gap-2">
             <a
               href={shortUrl}
               target="_blank"
               rel="noopener noreferrer"
-              className="text-indigo-600 hover:underline break-all"
+              className="text-indigo-600 hover:underline break-all flex-1"
             >
               {shortUrl}
             </a>
+            
+            {/* Copy to Clipboard Button */}
+            <CopyToClipboard text={shortUrl} onCopy={() => toast.success('URL copied to clipboard!')}>
+              <button
+                className="p-2 rounded-md hover:bg-gray-200 transition-colors"
+                data-tooltip-id="copy-tooltip"
+                data-tooltip-content="Copy to clipboard"
+              >
+                <ClipboardDocumentIcon className="h-5 w-5 text-gray-600" />
+              </button>
+            </CopyToClipboard>
+            
+            {/* QR Code Button */}
+            <button
+              onClick={() => setShowQRCode(!showQRCode)}
+              className="p-2 rounded-md hover:bg-gray-200 transition-colors"
+              data-tooltip-id="qrcode-tooltip"
+              data-tooltip-content="Show QR Code"
+            >
+              <QrCodeIcon className="h-5 w-5 text-gray-600" />
+            </button>
           </div>
-        )}
+
+          {/* QR Code Display */}
+          <AnimatePresence>
+            {showQRCode &&(<QRCodeComponent shortUrl={shortUrl} />)}
+          </AnimatePresence>
+
+          <Tooltip id="copy-tooltip" />
+          <Tooltip id="qrcode-tooltip" />
+        </div>
+      )}
+     
       </div>
       <Footer />
       <ToastContainer />
