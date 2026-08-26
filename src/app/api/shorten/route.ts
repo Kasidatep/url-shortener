@@ -1,141 +1,66 @@
 import connectMongo from '@/lib/mongodb';
-import UrlService from '@/models/Url';
+import Url from '@/models/Url';
 import { NextRequest, NextResponse } from 'next/server';
 import { nanoid } from 'nanoid';
-import { comparePassword, hashPassword } from '@/utils/hash';
+import { hashPassword } from '@/utils/hash';
+import { hashSecret, isValidDeviceKey } from '@/lib/security';
+import { normalizeAlias, normalizeUrl, parseExpiration } from '@/lib/validation';
+import { rateLimit } from '@/lib/rate-limit';
 
 export async function POST(request: NextRequest) {
-    try {
-        const body = await request.json();
-        console.log(body);
+  const ip = request.headers.get('cf-connecting-ip') || request.headers.get('x-forwarded-for')?.split(',')[0] || 'unknown';
+  if (!rateLimit(ip)) return NextResponse.json({ message: 'Too many links. Please wait a minute.' }, { status: 429 });
+  const deviceKey = request.headers.get('x-device-key');
+  if (!isValidDeviceKey(deviceKey)) return NextResponse.json({ message: 'Device key is required' }, { status: 400 });
 
-        if (!body.url) {
-            return NextResponse.json({ message: 'URL is required', code: 400101 }, { status: 400 });
-        }
+  try {
+    const body = await request.json();
+    const originalUrl = normalizeUrl(body.url);
+    const requestedAlias = normalizeAlias(body.customShortId);
+    const expiration = parseExpiration(body.expirationType, body.maxClicks, body.expirationDate);
+    await connectMongo();
 
-        try {
-            new URL(body.url);
-        } catch {
-            return NextResponse.json({ message: 'Invalid URL format', code: 400102 }, { status: 400 });
-        }
-
-        await connectMongo();
-
-        let shortUrl;
-        if (body.customShortId && body.customShortId.length > 0) {
-            const existingUrl = await UrlService.findOne({ shortUrl: body.customShortId });
-            if (existingUrl) {
-                return NextResponse.json({ message: 'Custom short URL is already in use', code: 400100 }, { status: 400 });
-            }
-            shortUrl = body.customShortId;
-        } else {
-            shortUrl = nanoid(8);
-        }
-
-        let hashedPassword = null;
-        if (body.password && body.password.length > 0) {
-            hashedPassword = await hashPassword(body.password);
-        }
-
-        if (body.expirationType === 'clicks' && !body.maxClicks) {
-            return NextResponse.json({ message: 'Max clicks is required for this expiration type', code: 400201 }, { status: 400 });
-        }
-
-        if (body.expirationType === 'datetime' && !body.expirationDate) {
-            return NextResponse.json({ message: 'Expiration date is required for this expiration type', code: 400202 }, { status: 400 });
-        }
-
-        // Validate expiration date format if provided
-        if (body.expirationType === 'datetime' && body.expirationDate) {
-            const expirationDate = new Date(body.expirationDate);
-            if (isNaN(expirationDate.getTime())) {
-                return NextResponse.json({ message: 'Invalid expiration date format', code: 400203 }, { status: 400 });
-            }
-        }
-
-        // Create new URL document
-        const newUrl = new UrlService({
-            originalUrl: body.url,
-            shortUrl,
-            password: hashedPassword,
-            expirationType: body.expirationType || 'none',
-            maxClicks: body.maxClicks || null,
-            expirationDate: body.expirationDate || null,
-            metadata: body.metadata || {},
-            clicks: 0
-        });
-
-        if (process.env.NODE_ENV !== 'production') {
-            console.log("newUrl:", newUrl);
-        }
-
-        try {
-            const saved = await newUrl.save();
-            console.log("Saved successfully:", saved);
-        } catch (err: unknown) {
-            if (err instanceof Error) {
-                console.error("Save Error:", err.message, err);
-                return NextResponse.json({ message: 'Error saving URL', code: 500001 }, { status: 500 });
-            } else {
-                console.error("Save Error:", err);
-                return NextResponse.json({ message: 'Error saving URL', code: 500001 }, { status: 500 });
-            }
-        }
-
-        return NextResponse.json({ shortUrl }, { status: 201 });
-    } catch (err) {
-        console.error(err);
-        return NextResponse.json({ message: 'Internal server error', code: 500000 }, { status: 500 });
+    const shortUrl = requestedAlias || nanoid(8);
+    if (requestedAlias && await Url.exists({ shortUrl })) {
+      return NextResponse.json({ message: 'This custom name is already used', code: 'ALIAS_TAKEN' }, { status: 409 });
     }
+
+    const password = typeof body.password === 'string' && body.password.length
+      ? await hashPassword(body.password.slice(0, 128))
+      : null;
+
+    await Url.create({
+      originalUrl, shortUrl, password, ...expiration,
+      ownerDeviceHash: hashSecret(deviceKey!), clicks: 0, active: true,
+    });
+    return NextResponse.json({ shortUrl }, { status: 201 });
+  } catch (error: unknown) {
+    const duplicate = typeof error === 'object' && error !== null && 'code' in error && error.code === 11000;
+    return NextResponse.json(
+      { message: duplicate ? 'This custom name is already used' : error instanceof Error ? error.message : 'Unable to create link' },
+      { status: duplicate ? 409 : 400 },
+    );
+  }
 }
 
 export async function GET(request: NextRequest) {
-    const { searchParams } = new URL(request.url);
-    const password = searchParams.get("password");
-    const code = searchParams.get('code');
+  const code = new URL(request.url).searchParams.get('code');
+  if (!code) return NextResponse.json({ message: 'Code is required' }, { status: 400 });
+  await connectMongo();
+  const url = await Url.findOne({ shortUrl: code }).select('+password');
+  if (!url) return NextResponse.json({ message: 'Short URL not found' }, { status: 404 });
+  if (!url.active) return NextResponse.json({ message: 'Link disabled' }, { status: 410 });
+  if (url.expirationType === 'datetime' && url.expirationDate && url.expirationDate <= new Date()) {
+    return NextResponse.json({ message: 'Link expired' }, { status: 410 });
+  }
+  if (url.expirationType === 'clicks' && url.clicks >= (url.maxClicks || 0)) {
+    return NextResponse.json({ message: 'Click limit reached' }, { status: 410 });
+  }
+  if (url.password) return NextResponse.json({ protected: true }, { status: 401 });
 
-    await connectMongo();
-
-    // Find the URL by its short code
-    const url = await UrlService.findOne({ shortUrl: code });
-
-    if (!url) {
-        return NextResponse.json({ message: 'Short URL not found', redirect: null }, { status: 404 });
-    }
-
-    // Check if a password is required
-    if (url.password) {
-        if (!password) {
-            return NextResponse.json({ message: 'Password required to access the URL', redirect: null }, { status: 401 });
-        }
-
-        // Validate password
-        const isPasswordValid = await comparePassword(password, url.password);
-        if (!isPasswordValid) {
-            return NextResponse.json({ message: 'Incorrect password', redirect: null }, { status: 403 });
-        }
-    }
-
-    // Check for max click limit
-    if (url.expirationType === 'clicks' && url.clicks >= url.maxClicks) {
-        return NextResponse.json({ message: 'Max clicks reached', redirect: null }, { status: 400 });
-    }
-
-    // Check for expiration date
-    if (url.expirationType === 'datetime' && url.expirationDate && new Date(url.expirationDate) < new Date()) {
-        return NextResponse.json({ message: 'URL has expired', redirect: null }, { status: 400 });
-    }
-
-    // Increment click count if the expiration type is 'clicks'
-    if (url.expirationType === 'clicks') {
-        // Increment the clicks count by 1
-        
-        url.clicks += 1;
-        
-        // Save the updated document
-        await url.save();
-    }
-
-    // Respond with the original URL
-    return NextResponse.json({ message: 'OK', redirect: url.originalUrl }, { status: 200 });
+  const filter: Record<string, unknown> = { _id: url._id, active: true };
+  if (url.expirationType === 'clicks') filter.clicks = { $lt: url.maxClicks };
+  const updated = await Url.findOneAndUpdate(filter, { $inc: { clicks: 1 }, $set: { lastClickedAt: new Date() } });
+  if (!updated) return NextResponse.json({ message: 'Link expired' }, { status: 410 });
+  return NextResponse.json({ redirect: url.originalUrl }, { headers: { 'Cache-Control': 'no-store' } });
 }

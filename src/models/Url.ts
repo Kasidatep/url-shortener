@@ -1,41 +1,31 @@
-import mongoose, { Schema, model, models, Document } from "mongoose";
+import mongoose, { Schema, model, models, Document } from 'mongoose';
 
-// Define the interface for the Url schema
-interface IUrl extends Document {
+export interface IUrl extends Document {
   originalUrl: string;
   shortUrl: string;
   clicks: number;
   password: string | null;
-  expirationType: string | null;
+  expirationType: 'none' | 'clicks' | 'datetime';
   maxClicks: number | null;
   expirationDate: Date | null;
-  metadata: {
-    title: string;
-    description: string;
-    image: string;
-  };
+  ownerDeviceHash: string;
+  active: boolean;
+  lastClickedAt: Date | null;
+  createdAt: Date;
 }
 
-// Define the schema
-const UrlSchema = new Schema<IUrl>(
-  {
-    originalUrl: { type: String, required: true },
-    shortUrl: { type: String, required: true, unique: true },
-    clicks: { type: Number, default: 0 },
-    password: { type: String, default: null },
-    expirationType: { type: String, default: null },
-    maxClicks: { type: Number, default: null },
-    expirationDate: { type: Date, default: null },
-    metadata: {
-      title: { type: String, default: "" },
-      description: { type: String, default: "" },
-      image: { type: String, default: "" },
-    },
-  },
-  { timestamps: true }
-);
+const UrlSchema = new Schema<IUrl>({
+  originalUrl: { type: String, required: true, maxlength: 4096 },
+  shortUrl: { type: String, required: true, unique: true, index: true },
+  clicks: { type: Number, default: 0 },
+  password: { type: String, default: null, select: false },
+  expirationType: { type: String, enum: ['none', 'clicks', 'datetime'], default: 'none' },
+  maxClicks: { type: Number, default: null },
+  expirationDate: { type: Date, default: null },
+  ownerDeviceHash: { type: String, required: true, index: true, select: false },
+  active: { type: Boolean, default: true },
+  lastClickedAt: { type: Date, default: null },
+}, { timestamps: true });
 
-// Define the model with TypeScript support
-const UrlService = models.UrlShortener || model<IUrl>("UrlShortener", UrlSchema);
-
-export default UrlService;
+UrlSchema.index({ ownerDeviceHash: 1, createdAt: -1 });
+export default models.UrlShortener || model<IUrl>('UrlShortener', UrlSchema);

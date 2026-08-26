@@ -1,13 +1,22 @@
-/** @type {import('next').NextConfig} */
-import withPWA from "next-pwa";
+import createPWA from 'next-pwa';
 
-const nextConfig = withPWA({
-  reactStrictMode: true,
-  pwa: {
-    dest: "public",
-    register: true,
-    skipWaiting: true,
-  },
+const withPWA = createPWA({
+  dest: 'public',
+  register: true,
+  skipWaiting: true,
+  disable: process.env.NODE_ENV === 'development',
 });
 
-export default nextConfig;
+const securityHeaders = [
+  { key: 'X-Content-Type-Options', value: 'nosniff' },
+  { key: 'X-Frame-Options', value: 'DENY' },
+  { key: 'Referrer-Policy', value: 'strict-origin-when-cross-origin' },
+  { key: 'Permissions-Policy', value: 'camera=(), microphone=(), geolocation=()' },
+];
+
+export default withPWA({
+  reactStrictMode: true,
+  async headers() {
+    return [{ source: '/:path*', headers: securityHeaders }];
+  },
+});
