@@ -1,5 +1,7 @@
 'use client';
 
+import Link from 'next/link';
+
 import PreferenceControls from './PreferenceControls';
 import { usePreferences } from './PreferencesProvider';
 import { getPageMessages } from '@/config/page-i18n';
