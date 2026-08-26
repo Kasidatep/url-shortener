@@ -9,6 +9,7 @@ const labels = {
   zh:{help:'帮助',privacy:'隐私',terms:'条款',product:'MemoLab 产品'},
   ja:{help:'ヘルプ',privacy:'プライバシー',terms:'利用規約',product:'MemoLab プロダクト'},
   ko:{help:'도움말',privacy:'개인정보',terms:'이용약관',product:'MemoLab 제품'},
+  es:{help:'Ayuda',privacy:'Privacidad',terms:'Términos',product:'Un producto de MemoLab'},
 };
 
 export default function AppFooter(){

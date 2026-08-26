@@ -7,6 +7,7 @@ import connectMongo from '@/lib/mongodb';
 import Url from '@/models/Url';
 
 type RawResponse={body:Buffer;contentType:string;finalUrl:URL};
+type PreviewLink={password?:string|null;originalUrl:string;expirationType:'none'|'clicks'|'datetime';expirationDate?:Date|null;maxClicks?:number|null;clicks:number};
 export type LinkPreview={title:string;hostname:string;imageDataUrl?:string;protected:boolean};
 
 function isPrivateAddress(address:string){
@@ -80,7 +81,7 @@ function meta(html:string,key:string){
   const tags=html.match(/<meta\s+[^>]*>/gi)||[];
   for(const tag of tags){
     const attrs:Record<string,string>={};
-    for(const match of tag.matchAll(/([\w:-]+)\s*=\s*["']([^"']*)["']/g))attrs[match[1].toLowerCase()]=match[2];
+    for(const match of Array.from(tag.matchAll(/([\w:-]+)\s*=\s*["']([^"']*)["']/g)))attrs[match[1].toLowerCase()]=match[2];
     if((attrs.property||attrs.name)?.toLowerCase()===key.toLowerCase()&&attrs.content)return decode(attrs.content);
   }
   return '';
@@ -89,7 +90,7 @@ function meta(html:string,key:string){
 async function loadPreview(code:string):Promise<LinkPreview>{
   const safeCode=code.replace(/[^a-zA-Z0-9_-]/g,'').slice(0,48);
   await connectMongo();
-  const link=await Url.findOne({shortUrl:safeCode,active:true}).select('+password originalUrl expirationType expirationDate maxClicks clicks').lean();
+  const link=await Url.findOne({shortUrl:safeCode,active:true}).select('+password originalUrl expirationType expirationDate maxClicks clicks').lean() as unknown as PreviewLink|null;
   if(!link)return{title:'Secure short link',hostname:'MemoLink',protected:false};
   const protectedLink=Boolean(link.password);
   const expired=(link.expirationType==='datetime'&&link.expirationDate&&new Date(link.expirationDate)<=new Date())||(link.expirationType==='clicks'&&link.clicks>=(link.maxClicks||0));
