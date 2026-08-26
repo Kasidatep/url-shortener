@@ -4,7 +4,11 @@ export function getDeviceKey() {
   let key = localStorage.getItem(KEY);
   if (!key) {
     const bytes = crypto.getRandomValues(new Uint8Array(32));
-    key = btoa(String.fromCharCode(...bytes)).replaceAll('+', '-').replaceAll('/', '_').replaceAll('=', '');
+    let binary = '';
+    for (let index = 0; index < bytes.length; index += 1) {
+      binary += String.fromCharCode(bytes[index]);
+    }
+    key = btoa(binary).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/g, '');
     localStorage.setItem(KEY, key);
   }
   return key;
