@@ -62,7 +62,7 @@ export const extraFaqSections: Record<Locale, FaqSection[]> = {
       ['사용자 지정 이름을 사용할 수 없는 이유는 무엇인가요?', '사용자 지정 이름은 고유해야 합니다. 다른 표현이나 캠페인 이름을 추가하거나 자동 생성을 사용해 보세요.'],
       ['복구 키를 잃어버리면 어떻게 되나요?', 'MemoLink는 복구 키를 다시 만들 수 없습니다. 리디렉션은 계속되지만 원래 키 없이는 관리 권한을 복원할 수 없습니다.'],
     ]],
-  ],,
+  ],
   es:[
     ['Compartir y campañas',[
       ['¿Puedo usar el mismo código QR después de cambiar el destino?','Sí. El QR apunta a la misma dirección MemoLink, por lo que los códigos impresos o compartidos continúan funcionando.'],
