@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from 'next';
 import { Inter } from 'next/font/google';
 import { env } from '@/config/env';
+import { PreferencesProvider } from '@/components/PreferencesProvider';
 import './globals.css';
 
 const inter = Inter({ subsets: ['latin'], display: 'swap' });
@@ -16,10 +17,8 @@ export const metadata: Metadata = {
   icons: { icon: '/favicon.ico', apple: '/icon-192x192.jpg' },
 };
 
-export const viewport: Viewport = { width: 'device-width', initialScale: 1, themeColor: '#070B14', colorScheme: 'dark' };
+export const viewport: Viewport = { width: 'device-width', initialScale: 1, themeColor: [{ media: '(prefers-color-scheme: light)', color: '#f7f8fc' }, { media: '(prefers-color-scheme: dark)', color: '#070b14' }], colorScheme: 'light dark' };
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
-  return <html lang="en"><body className={inter.className}>{children}<footer>© {new Date().getFullYear()} Kasidate Short · <LinkSet /></footer></body></html>;
+  return <html lang="en" data-theme="light" suppressHydrationWarning><body className={inter.className}><PreferencesProvider>{children}<footer>© {new Date().getFullYear()} Kasidate Short · <span><a href="https://memolab.me/privacy">Privacy</a><a href="https://memolab.me/terms">Terms</a><a href="https://kasidate.me">Made by Kasidate</a></span></footer></PreferencesProvider></body></html>;
 }
-
-function LinkSet() { return <span><a href="/privacy">Privacy</a><a href="https://kasidate.me">Made by Kasidate</a></span>; }
