@@ -6,6 +6,7 @@ import { hashPassword } from '@/utils/hash';
 import { hashSecret, isValidDeviceKey } from '@/lib/security';
 import { normalizeAlias, normalizeUrl, parseExpiration } from '@/lib/validation';
 import { rateLimit } from '@/lib/rate-limit';
+import { recordLinkClick } from '@/lib/analytics';
 
 export async function POST(request: NextRequest) {
   const ip = request.headers.get('cf-connecting-ip') || request.headers.get('x-forwarded-for')?.split(',')[0] || 'unknown';
@@ -62,5 +63,6 @@ export async function GET(request: NextRequest) {
   if (url.expirationType === 'clicks') filter.clicks = { $lt: url.maxClicks };
   const updated = await Url.findOneAndUpdate(filter, { $inc: { clicks: 1 }, $set: { lastClickedAt: new Date() } });
   if (!updated) return NextResponse.json({ message: 'Link expired' }, { status: 410 });
+  await recordLinkClick(request, url.shortUrl);
   return NextResponse.json({ redirect: url.originalUrl }, { headers: { 'Cache-Control': 'no-store' } });
 }

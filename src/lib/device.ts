@@ -1,4 +1,4 @@
-const KEY = 'kasidate-short-device-key-v1';
+const KEY = 'memolink-device-key-v1';
 
 export function getDeviceKey() {
   let key = localStorage.getItem(KEY);

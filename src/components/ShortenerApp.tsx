@@ -1,6 +1,5 @@
 'use client';
 
-import Image from 'next/image';
 import Link from 'next/link';
 import { useMemo, useState } from 'react';
 import { ClipboardDocumentIcon, QrCodeIcon, ShareIcon } from '@heroicons/react/24/outline';
@@ -8,6 +7,7 @@ import QRCodeComponent from './QRCodeComponent';
 import PreferenceControls from './PreferenceControls';
 import { usePreferences } from './PreferencesProvider';
 import { getDeviceKey } from '@/lib/device';
+import { getPageMessages } from '@/config/page-i18n';
 
 type Expiration = 'none' | 'clicks' | 'datetime';
 type Utm = { source: string; medium: string; campaign: string; term: string; content: string };
@@ -28,7 +28,8 @@ function prepareUrl(raw: string, clean: boolean, utm: Utm) {
 }
 
 export default function ShortenerApp() {
-  const { t } = usePreferences();
+  const { t, locale } = usePreferences();
+  const pageText = getPageMessages(locale);
   const [url, setUrl] = useState('');
   const [alias, setAlias] = useState('');
   const [password, setPassword] = useState('');
@@ -71,8 +72,8 @@ export default function ShortenerApp() {
 
   return <main>
     <nav className="nav">
-      <Link href="/" className="brand"><Image src="/logo.png" alt="Kasidate Short" width={116} height={44} priority /></Link>
-      <div className="nav-actions"><PreferenceControls /><Link href="/manage" className="nav-link">{t('myLinks')}</Link></div>
+      <Link href="/" className="brand wordmark"><span className="ml-mark" aria-hidden="true">↗</span>MemoLink</Link>
+      <div className="nav-actions"><Link href="/faq" className="nav-link nav-link-quiet">{pageText.navFaq}</Link><PreferenceControls /><Link href="/manage" className="nav-link">{t('myLinks')}</Link></div>
     </nav>
 
     <section className="hero">

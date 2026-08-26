@@ -13,8 +13,8 @@ export function PreferencesProvider({ children }: { children: React.ReactNode })
   const [theme, setThemeState] = useState<Theme>('light');
 
   useEffect(() => {
-    const savedLocale = localStorage.getItem('short-locale');
-    const savedTheme = localStorage.getItem('short-theme');
+    const savedLocale = localStorage.getItem('memolink-locale');
+    const savedTheme = localStorage.getItem('memolink-theme');
     if (savedLocale && localeSet.has(savedLocale)) setLocaleState(savedLocale as Locale);
     if (savedTheme === 'light' || savedTheme === 'dark' || savedTheme === 'system') setThemeState(savedTheme);
   }, []);
@@ -31,8 +31,8 @@ export function PreferencesProvider({ children }: { children: React.ReactNode })
     return () => media.removeEventListener('change', apply);
   }, [locale, theme]);
 
-  function setLocale(value: Locale) { localStorage.setItem('short-locale', value); setLocaleState(value); }
-  function setTheme(value: Theme) { localStorage.setItem('short-theme', value); setThemeState(value); }
+  function setLocale(value: Locale) { localStorage.setItem('memolink-locale', value); setLocaleState(value); }
+  function setTheme(value: Theme) { localStorage.setItem('memolink-theme', value); setThemeState(value); }
 
   const value = useMemo(() => ({ locale, setLocale, theme, setTheme, t: (key: MessageKey) => messages[locale][key] }), [locale, theme]);
   return <Context.Provider value={value}>{children}</Context.Provider>;

@@ -1,16 +1,5 @@
 import { ImageResponse } from 'next/og';
-
-export const alt = 'Kasidate Short — links under your control';
-export const size = { width: 1200, height: 630 };
-export const contentType = 'image/png';
-
-export default function Image() {
-  return new ImageResponse(
-    <div style={{ width: '100%', height: '100%', display: 'flex', flexDirection: 'column', justifyContent: 'center', padding: 80, color: 'white', backgroundColor: '#070b14' }}>
-      <div style={{ display: 'flex', fontSize: 24, color: '#a99dff', letterSpacing: 4 }}>KASIDATE SHORT</div>
-      <div style={{ display: 'flex', fontSize: 76, fontWeight: 800, lineHeight: 1.05, marginTop: 28, maxWidth: 920 }}>Short links that stay under your control.</div>
-      <div style={{ display: 'flex', fontSize: 26, color: '#9aa5bd', marginTop: 32 }}>QR codes · Passwords · Expiration · Device ownership</div>
-    </div>,
-    size,
-  );
-}
+export const alt='MemoLink — Simple links. Useful control.';
+export const size={width:1200,height:630};
+export const contentType='image/png';
+export default function Image(){return new ImageResponse(<div style={{width:'100%',height:'100%',display:'flex',flexDirection:'column',justifyContent:'center',padding:80,color:'#172033',backgroundColor:'#f7f8fc'}}><div style={{display:'flex',alignItems:'center',fontSize:28,color:'#6457e8',fontWeight:700}}>↗ MemoLink</div><div style={{display:'flex',fontSize:78,fontWeight:800,lineHeight:1.04,marginTop:34,maxWidth:960}}>Simple links. Useful control.</div><div style={{display:'flex',fontSize:27,color:'#657089',marginTop:32}}>Protect · Share · Measure · Recover</div></div>,size);}
