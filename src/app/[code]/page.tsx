@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import PreferenceControls from '@/components/PreferenceControls';
+import MemoLinkLogo from '@/components/MemoLinkLogo';
 import { usePreferences } from '@/components/PreferencesProvider';
 import { getPageMessages } from '@/config/page-i18n';
 
@@ -35,7 +36,7 @@ export default function ShortLinkPage({ params }: { params: { code: string } }) 
   }
 
   return <main className="redirect-page">
-    <header className="redirect-nav"><Link href="/" className="brand wordmark"><span className="ml-mark" aria-hidden="true">↗</span>MemoLink</Link><PreferenceControls /></header>
+    <header className="redirect-nav"><MemoLinkLogo/><PreferenceControls /></header>
     <div className="redirect-shell"><section className="redirect-card">
       {state === 'checking' ? <><div className="spinner"/><h1>{text.checking}</h1></> : null}
       {state === 'password' ? <><div className="lock">↗</div><h1>{text.protectedTitle}</h1><p>{text.protectedBody}</p><form onSubmit={unlock}><input type="password" autoFocus required autoComplete="current-password" value={password} onChange={event => setPassword(event.target.value)} placeholder={text.password}/>{message ? <p className="form-error" role="alert">{message}</p> : null}<button className="primary-button">{text.continue} →</button></form></> : null}

@@ -3,8 +3,11 @@
 import Link from 'next/link';
 import { useEffect, useMemo, useState } from 'react';
 import AppHeader from '@/components/AppHeader';
+import ConfirmDialog from '@/components/ConfirmDialog';
+import { useNotifications } from '@/components/NotificationTray';
 import { usePreferences } from '@/components/PreferencesProvider';
 import { getPageMessages } from '@/config/page-i18n';
+import { dialogMessages } from '@/config/dialog-i18n';
 import { exportDeviceKey, getDeviceKey, importDeviceKey } from '@/lib/device';
 
 type LinkItem = {
@@ -28,6 +31,8 @@ function Trend({ values }: { values: Record<string,number> }) {
 export default function ManagePage() {
   const { locale } = usePreferences();
   const text = getPageMessages(locale);
+  const dialog = dialogMessages[locale];
+  const { notify } = useNotifications();
   const [links, setLinks] = useState<LinkItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [origin, setOrigin] = useState('');
@@ -36,7 +41,7 @@ export default function ManagePage() {
   const [analyticsLoading, setAnalyticsLoading] = useState(false);
   const [recoveryOpen, setRecoveryOpen] = useState(false);
   const [recoveryKey, setRecoveryKey] = useState('');
-  const [message, setMessage] = useState('');
+  const [pendingDelete, setPendingDelete] = useState<string | null>(null);
 
   async function load() {
     setLoading(true);
@@ -58,17 +63,35 @@ export default function ManagePage() {
   }
   async function update(code: string, patch: Record<string,unknown>) {
     const response = await fetch('/api/links/' + encodeURIComponent(code), { method:'PATCH', headers:{ 'Content-Type':'application/json','x-device-key':getDeviceKey() }, body:JSON.stringify(patch) });
-    if (response.ok) await load();
+    if (response.ok) { await load(); notify(dialog.updated, 'success'); }
+    else notify(dialog.actionFailed, 'error');
   }
   async function remove(code: string) {
-    if (!window.confirm(text.delete + '?')) return;
     const response = await fetch('/api/links/' + encodeURIComponent(code), { method:'DELETE', headers:{ 'x-device-key':getDeviceKey() } });
-    if (response.ok) { setLinks(items => items.filter(item => item.shortUrl !== code)); setSelected(null); }
+    if (response.ok) {
+      setLinks(items => items.filter(item => item.shortUrl !== code));
+      setSelected(null);
+      notify(dialog.deleted, 'success');
+    } else notify(dialog.actionFailed, 'error');
+    setPendingDelete(null);
   }
-  async function copyRecovery() { await navigator.clipboard.writeText(exportDeviceKey()); setMessage(text.copyRecovery); }
+  async function copyLink(code: string) {
+    await navigator.clipboard.writeText(origin + '/' + code);
+    notify(dialog.copied, 'success');
+  }
+  async function copyRecovery() {
+    await navigator.clipboard.writeText(exportDeviceKey());
+    notify(dialog.recoveryCopied, 'success');
+  }
   function restore() {
-    try { importDeviceKey(recoveryKey.trim()); setRecoveryOpen(false); setMessage(text.restore); void load(); }
-    catch (error) { setMessage(error instanceof Error ? error.message : 'Invalid key'); }
+    try {
+      importDeviceKey(recoveryKey.trim());
+      setRecoveryOpen(false);
+      notify(dialog.restored, 'success');
+      void load();
+    } catch {
+      notify(dialog.actionFailed, 'error');
+    }
   }
 
   return <main>
@@ -79,18 +102,27 @@ export default function ManagePage() {
       <section className="summary-grid"><article><span>{text.navLinks}</span><strong>{links.length}</strong></article><article><span>{text.clicks}</span><strong>{totals.clicks.toLocaleString(locale)}</strong></article><article><span>{text.live}</span><strong>{totals.active}</strong></article></section>
 
       {recoveryOpen ? <section className="recovery-card"><div><h2>{text.recoverTitle}</h2><p>{text.recoverBody}</p></div><div className="recovery-actions"><button onClick={copyRecovery}>{text.copyRecovery}</button><input aria-label={text.pasteRecovery} placeholder={text.pasteRecovery} value={recoveryKey} onChange={event => setRecoveryKey(event.target.value)} /><button onClick={restore}>{text.restore}</button></div></section> : null}
-      {message ? <p className="notice" role="status">{message}</p> : null}
 
       {loading ? <div className="empty-state">{text.loadingLinks}</div> : links.length === 0 ? <div className="empty-state"><h2>{text.noLinks}</h2><p>{text.noLinksBody}</p><Link href="/">{text.createLink} →</Link></div> : <div className="link-list">
         {links.map(item => {
           const detail = analytics[item.shortUrl];
           return <article className={selected === item.shortUrl ? 'link-card expanded' : 'link-card'} key={item.shortUrl}>
             <div className="link-card-row"><div className="link-main"><div className="link-title"><span className={item.active ? 'status-live' : 'status-off'}>{item.active ? text.live : text.paused}</span><a href={'/' + item.shortUrl} target="_blank" rel="noreferrer">{origin}/{item.shortUrl}</a></div><p title={item.originalUrl}>{item.originalUrl}</p><div className="link-meta"><span><strong>{item.clicks.toLocaleString(locale)}</strong> {text.clicks}</span><span>{text.created} {new Date(item.createdAt).toLocaleDateString(locale)}</span>{item.lastClickedAt ? <span>{text.lastVisit} {new Date(item.lastClickedAt).toLocaleDateString(locale)}</span> : null}</div></div>
-            <div className="link-actions"><button onClick={() => navigator.clipboard.writeText(origin + '/' + item.shortUrl)}>{text.copy}</button><button onClick={() => loadAnalytics(item.shortUrl)}>{text.analytics}</button><button onClick={() => update(item.shortUrl,{active:!item.active})}>{item.active ? text.pause : text.activate}</button><button className="danger" onClick={() => remove(item.shortUrl)}>{text.delete}</button></div></div>
+            <div className="link-actions"><button onClick={() => void copyLink(item.shortUrl)}>{text.copy}</button><button onClick={() => loadAnalytics(item.shortUrl)}>{text.analytics}</button><button onClick={() => void update(item.shortUrl,{active:!item.active})}>{item.active ? text.pause : text.activate}</button><button className="danger" onClick={() => setPendingDelete(item.shortUrl)}>{text.delete}</button></div></div>
             {selected === item.shortUrl ? <section className="analytics-panel">{analyticsLoading && !detail ? <p>{text.loadingLinks}</p> : detail ? <><div className="analytics-head"><div><span>{text.visits30d}</span><strong>{detail.visits30d.toLocaleString(locale)}</strong></div><Trend values={detail.daily} /></div><div className="breakdown-grid"><Breakdown title={text.countries} values={detail.countries}/><Breakdown title={text.devices} values={detail.devices}/><Breakdown title={text.referrers} values={detail.referrers}/></div></> : <p>{text.noAnalytics}</p>}</section> : null}
           </article>;
         })}
       </div>}
     </div>
+    <ConfirmDialog
+      open={pendingDelete !== null}
+      title={dialog.deleteTitle}
+      description={dialog.deleteBody}
+      confirmLabel={text.delete}
+      cancelLabel={dialog.cancel}
+      danger
+      onCancel={() => setPendingDelete(null)}
+      onConfirm={() => pendingDelete && void remove(pendingDelete)}
+    />
   </main>;
 }
