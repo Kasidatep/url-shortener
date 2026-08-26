@@ -1,5 +1,14 @@
 import type { MetadataRoute } from 'next';
 
 export default function manifest():MetadataRoute.Manifest{
-  return {name:'MemoLink — Short links with control',short_name:'MemoLink',description:'Create and manage secure short links and QR codes.',start_url:'/',display:'standalone',background_color:'#f7f8fc',theme_color:'#6457e8',icons:[{src:'/icon-192x192.jpg',sizes:'192x192',type:'image/jpeg'},{src:'/icon-512x512.jpg',sizes:'512x512',type:'image/jpeg'}]};
+  return {
+    name:'MemoLink — Short links with control',
+    short_name:'MemoLink',
+    description:'Create and manage secure short links, QR codes and privacy-friendly analytics.',
+    start_url:'/',
+    display:'standalone',
+    background_color:'#f7f8fc',
+    theme_color:'#6457e8',
+    icons:[{src:'/icon.svg',sizes:'any',type:'image/svg+xml'}],
+  };
 }

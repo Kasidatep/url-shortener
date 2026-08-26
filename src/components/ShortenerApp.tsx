@@ -8,6 +8,8 @@ import PreferenceControls from './PreferenceControls';
 import { usePreferences } from './PreferencesProvider';
 import { getDeviceKey } from '@/lib/device';
 import { getPageMessages } from '@/config/page-i18n';
+import MemoLinkLogo from './MemoLinkLogo';
+import { useNotifications } from './NotificationTray';
 
 type Expiration = 'none' | 'clicks' | 'datetime';
 type Utm = { source: string; medium: string; campaign: string; term: string; content: string };
@@ -29,6 +31,7 @@ function prepareUrl(raw: string, clean: boolean, utm: Utm) {
 
 export default function ShortenerApp() {
   const { t, locale } = usePreferences();
+  const { notify } = useNotifications();
   const pageText = getPageMessages(locale);
   const [url, setUrl] = useState('');
   const [alias, setAlias] = useState('');
@@ -58,21 +61,21 @@ export default function ShortenerApp() {
       });
       const data = await response.json();
       if (!response.ok) throw new Error(data.message || 'Unable to create link');
-      setShortUrl(window.location.origin + '/' + data.shortUrl); setShowQr(false);
-    } catch (reason) { setError(reason instanceof Error ? reason.message : 'Something went wrong'); }
+      setShortUrl(window.location.origin + '/' + data.shortUrl); setShowQr(false); notify(t('ready'), 'success');
+    } catch (reason) { const message = reason instanceof Error ? reason.message : 'Something went wrong'; setError(message); notify(message, 'error'); }
     finally { setStatus('idle'); }
   }
 
   async function paste() {
-    try { setUrl(await navigator.clipboard.readText()); } catch { setError('Clipboard access was not available'); }
+    try { setUrl(await navigator.clipboard.readText()); } catch { notify('Clipboard access was not available', 'error'); }
   }
-  async function copy() { await navigator.clipboard.writeText(shortUrl); setStatus('copied'); window.setTimeout(() => setStatus('idle'), 1600); }
+  async function copy() { await navigator.clipboard.writeText(shortUrl); setStatus('copied'); notify(t('copied'), 'success'); window.setTimeout(() => setStatus('idle'), 1600); }
   async function share() { if (navigator.share) await navigator.share({ title: 'Short link', url: shortUrl }); else await copy(); }
   function changeUtm(key: keyof Utm, value: string) { setUtm(current => ({ ...current, [key]: value })); }
 
   return <main>
     <nav className="nav">
-      <Link href="/" className="brand wordmark"><span className="ml-mark" aria-hidden="true">↗</span>MemoLink</Link>
+      <MemoLinkLogo/>
       <div className="nav-actions"><Link href="/faq" className="nav-link nav-link-quiet">{pageText.navFaq}</Link><PreferenceControls /><Link href="/manage" className="nav-link">{t('myLinks')}</Link></div>
     </nav>
 
@@ -107,6 +110,5 @@ export default function ShortenerApp() {
     </section>
 
     <section className="features" aria-labelledby="features-title"><div><p className="kicker">{t('featuresKicker')}</p><h2 id="features-title">{t('featuresTitle')}</h2></div><div className="feature-grid">{[[t('f1Title'),t('f1Body')],[t('f2Title'),t('f2Body')],[t('f3Title'),t('f3Body')]].map((item,index) => <article key={item[0]}><span>0{index + 1}</span><h3>{item[0]}</h3><p>{item[1]}</p></article>)}</div></section>
-    <section className="faq"><p className="kicker">{t('faq')}</p><h2>{t('faqTitle')}</h2>{[[t('faq1'),t('faq1a')],[t('faq2'),t('faq2a')],[t('faq3'),t('faq3a')]].map(item => <details key={item[0]}><summary>{item[0]}</summary><p>{item[1]}</p></details>)}</section>
   </main>;
 }
