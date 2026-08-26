@@ -17,10 +17,6 @@ const securityHeaders = [
 export default withPWA({
   reactStrictMode: true,
   async headers() {
-    return [
-      { source: '/:path*', headers: securityHeaders },
-      { source: '/:code', headers: [{ key: 'X-Robots-Tag', value: 'noindex, nofollow, noarchive' }] },
-      { source: '/manage', headers: [{ key: 'X-Robots-Tag', value: 'noindex, nofollow, noarchive' }] },
-    ];
+    return [{ source: '/:path*', headers: securityHeaders }];
   },
 });
