@@ -36,7 +36,9 @@ export default function ShareKit({open,url,onClose}:{open:boolean;url:string;onC
   function openTarget(target:Target){const popup=window.open(target.url(url,shareText),'_blank','noopener,noreferrer');if(popup)popup.opener=null;}
   async function copyLink(){await navigator.clipboard.writeText(url);notify(copy.copied,'success');onClose();}
   async function downloadCard(blob?:Blob){
-    const image=blob??await fetch(cardPath,{cache:'no-store'}).then(response=>response.blob());
+    let image:Blob;
+    if(blob)image=blob;
+    else image=await fetch(cardPath,{cache:'no-store'}).then(response=>response.blob());
     const objectUrl=URL.createObjectURL(image);
     const anchor=document.createElement('a');
     anchor.href=objectUrl;anchor.download='memolink-share-card.png';anchor.click();
