@@ -3,7 +3,7 @@
 import Image from 'next/image';
 import Link from 'next/link';
 import { useMemo, useState } from 'react';
-import { ClipboardDocumentIcon, QrCodeIcon, ShareIcon, SparklesIcon } from '@heroicons/react/24/outline';
+import { ClipboardDocumentIcon, QrCodeIcon, ShareIcon } from '@heroicons/react/24/outline';
 import QRCodeComponent from './QRCodeComponent';
 import PreferenceControls from './PreferenceControls';
 import { usePreferences } from './PreferencesProvider';
@@ -76,7 +76,6 @@ export default function ShortenerApp() {
     </nav>
 
     <section className="hero">
-      <div className="eyebrow"><SparklesIcon /> {t('eyebrow')}</div>
       <h1>{t('heroA')} <span>{t('heroB')}</span></h1>
       <p>{t('heroDescription')}</p>
 
@@ -106,7 +105,7 @@ export default function ShortenerApp() {
       {shortUrl ? <section className="result-card" aria-live="polite"><div><span className="success-dot">✓</span><div><small>{t('ready')}</small><a href={shortUrl} target="_blank" rel="noreferrer">{shortUrl}</a></div></div><div className="result-actions"><button type="button" onClick={copy}><ClipboardDocumentIcon />{status === 'copied' ? t('copied') : t('copy')}</button><button type="button" onClick={share}><ShareIcon />{t('share')}</button><button type="button" onClick={() => setShowQr(value => !value)}><QrCodeIcon />{t('qr')}</button></div>{showQr ? <QRCodeComponent shortUrl={shortUrl} /> : null}<Link href="/manage" className="manage-link">{t('manage')}</Link></section> : null}
     </section>
 
-    <section className="features" aria-labelledby="features-title"><div><p className="kicker">{t('featuresKicker')}</p><h2 id="features-title">{t('featuresTitle')}</h2></div><div className="feature-grid">{[[t('f1Title'),t('f1Body')],[t('f2Title'),t('f2Body')],[t('f3Title'),t('f3Body')],[t('f4Title'),t('f4Body')]].map((item,index) => <article key={item[0]}><span>0{index + 1}</span><h3>{item[0]}</h3><p>{item[1]}</p></article>)}</div></section>
-    <section className="faq"><p className="kicker">{t('faq')}</p><h2>{t('faqTitle')}</h2>{[[t('faq1'),t('faq1a')],[t('faq2'),t('faq2a')],[t('faq3'),t('faq3a')],[t('faq4'),t('faq4a')]].map(item => <details key={item[0]}><summary>{item[0]}</summary><p>{item[1]}</p></details>)}</section>
+    <section className="features" aria-labelledby="features-title"><div><p className="kicker">{t('featuresKicker')}</p><h2 id="features-title">{t('featuresTitle')}</h2></div><div className="feature-grid">{[[t('f1Title'),t('f1Body')],[t('f2Title'),t('f2Body')],[t('f3Title'),t('f3Body')]].map((item,index) => <article key={item[0]}><span>0{index + 1}</span><h3>{item[0]}</h3><p>{item[1]}</p></article>)}</div></section>
+    <section className="faq"><p className="kicker">{t('faq')}</p><h2>{t('faqTitle')}</h2>{[[t('faq1'),t('faq1a')],[t('faq2'),t('faq2a')],[t('faq3'),t('faq3a')]].map(item => <details key={item[0]}><summary>{item[0]}</summary><p>{item[1]}</p></details>)}</section>
   </main>;
 }
