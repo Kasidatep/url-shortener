@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import { exportDeviceKey, getDeviceKey, importDeviceKey } from '@/lib/device';
+import PreferenceControls from '@/components/PreferenceControls';
 
 type LinkItem = {
   shortUrl: string; originalUrl: string; clicks: number; active: boolean;
@@ -51,7 +52,7 @@ export default function ManagePage() {
 
   return (
     <main className="dashboard-shell">
-      <nav className="nav"><Link href="/" className="wordmark">← Kasidate Short</Link><button className="nav-link button-link" onClick={() => setRecoveryOpen(value => !value)}>Recovery key</button></nav>
+      <nav className="nav"><Link href="/" className="wordmark">← Kasidate Short</Link><div className="nav-actions"><PreferenceControls /><button className="nav-link button-link" onClick={() => setRecoveryOpen(value => !value)}>Recovery key</button></div></nav>
       <header className="dashboard-head"><div><p className="kicker">YOUR DEVICE · YOUR LINKS</p><h1>My links</h1><p>Manage links created on this browser. No account, no public dashboard.</p></div><Link href="/" className="primary-link">+ Create link</Link></header>
 
       {recoveryOpen ? <section className="recovery-card">

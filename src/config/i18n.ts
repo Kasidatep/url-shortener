@@ -1,0 +1,51 @@
+export const locales = ['en', 'th'] as const;
+export type Locale = typeof locales[number];
+
+export const messages = {
+  en: {
+    myLinks: 'My links', eyebrow: 'Smart links, less friction', heroA: 'Short links that stay', heroB: 'under your control.',
+    heroDescription: 'Create a clean link with a QR code, password, click limit or expiration date. Free and no account required.',
+    pasteLongLink: 'Paste your long link', paste: 'Paste', addOptions: '+ Add smart options', hideOptions: '− Hide smart options',
+    customName: 'Custom name', password: 'Password', optional: 'optional', protectLink: 'Protect this link',
+    expiration: 'Expiration', never: 'Never', afterClicks: 'After clicks', dateTime: 'Date & time',
+    maximumClicks: 'Maximum clicks', expiresOn: 'Expires on', timezone: 'Uses your device timezone',
+    campaignTools: 'Campaign tools', source: 'Source', medium: 'Medium', campaign: 'Campaign', term: 'Term', content: 'Content',
+    removeTracking: 'Remove existing tracking parameters first', loading: 'Creating your link…', shorten: 'Shorten link →',
+    trust: 'No sign-up · Managed on this device · HTTPS links only', ready: 'Your link is ready', copy: 'Copy', copied: 'Copied',
+    share: 'Share', qr: 'QR code', manage: 'Manage this link and view clicks →',
+    featuresKicker: 'BUILT FOR REAL SHARING', featuresTitle: 'One short link. Every useful control.',
+    f1Title: 'Make it recognizable', f1Body: 'Choose a memorable custom name that people can trust and type.',
+    f2Title: 'Share beyond screens', f2Body: 'Generate and download a high-quality QR code in one click.',
+    f3Title: 'Control access', f3Body: 'Add a password, click limit or date without creating an account.',
+    f4Title: 'Keep ownership', f4Body: 'Your private device key lets this browser manage every link it creates.',
+    faq: 'FAQ', faqTitle: 'Short answers about short links.', faq1: 'Do I need an account?', faq1a: 'No. Links are owned by a private key stored on the device that created them.',
+    faq2: 'Can I manage my links later?', faq2a: 'Yes. Open My links on the same device to edit, pause, inspect or delete a link.',
+    faq3: 'What happens if I clear browser data?', faq3a: 'Export your recovery key from My links before clearing browser data or moving devices.',
+    faq4: 'Can I protect a short link?', faq4a: 'Yes. Add a password, expiration date or maximum number of visits.',
+    theme: 'Theme', language: 'Language',
+  },
+  th: {
+    myLinks: 'ลิงก์ของฉัน', eyebrow: 'ลิงก์ฉลาด งานแชร์ลื่นกว่าเดิม', heroA: 'ย่อลิงก์ให้สั้น', heroB: 'แต่ยังคุมได้ทุกอย่าง',
+    heroDescription: 'สร้างลิงก์สั้น พร้อม QR Code รหัสผ่าน จำนวนคลิกสูงสุด และวันหมดอายุ ฟรีโดยไม่ต้องสมัครสมาชิก',
+    pasteLongLink: 'วางลิงก์ยาว', paste: 'วาง', addOptions: '+ เพิ่มตัวเลือกอัจฉริยะ', hideOptions: '− ซ่อนตัวเลือก',
+    customName: 'ตั้งชื่อเอง', password: 'รหัสผ่าน', optional: 'ไม่บังคับ', protectLink: 'ป้องกันลิงก์นี้',
+    expiration: 'การหมดอายุ', never: 'ไม่หมดอายุ', afterClicks: 'ตามจำนวนคลิก', dateTime: 'วันและเวลา',
+    maximumClicks: 'จำนวนคลิกสูงสุด', expiresOn: 'หมดอายุเมื่อ', timezone: 'ใช้เขตเวลาของอุปกรณ์',
+    campaignTools: 'เครื่องมือแคมเปญ UTM', source: 'แหล่งที่มา', medium: 'ช่องทาง', campaign: 'ชื่อแคมเปญ', term: 'คำค้น', content: 'คอนเทนต์',
+    removeTracking: 'ลบ tracking parameters เดิมก่อน', loading: 'กำลังสร้างลิงก์…', shorten: 'ย่อลิงก์ →',
+    trust: 'ไม่ต้องสมัคร · จัดการได้จากอุปกรณ์นี้ · รองรับเฉพาะ HTTPS/HTTP', ready: 'ลิงก์พร้อมใช้งาน', copy: 'คัดลอก', copied: 'คัดลอกแล้ว',
+    share: 'แชร์', qr: 'QR Code', manage: 'จัดการลิงก์และดูจำนวนคลิก →',
+    featuresKicker: 'ออกแบบมาเพื่อการแชร์จริง', featuresTitle: 'ลิงก์เดียว ควบคุมได้ครบ',
+    f1Title: 'จำง่ายและน่าเชื่อถือ', f1Body: 'กำหนดชื่อสั้นที่อ่านออก พิมพ์ง่าย และสื่อถึงเนื้อหา',
+    f2Title: 'แชร์ข้ามหน้าจอ', f2Body: 'สร้างและดาวน์โหลด QR Code คุณภาพสูงได้ในคลิกเดียว',
+    f3Title: 'ควบคุมการเข้าถึง', f3Body: 'เพิ่มรหัสผ่าน จำนวนคลิก หรือวันหมดอายุโดยไม่ต้องมีบัญชี',
+    f4Title: 'ยังเป็นเจ้าของเสมอ', f4Body: 'Device key ส่วนตัวช่วยให้อุปกรณ์นี้จัดการทุกลิงก์ที่สร้าง',
+    faq: 'คำถามที่พบบ่อย', faqTitle: 'เรื่องลิงก์สั้น ตอบให้สั้นและชัด', faq1: 'ต้องสมัครสมาชิกไหม?', faq1a: 'ไม่ต้อง ลิงก์จะผูกกับ private key ที่เก็บอยู่บนอุปกรณ์ที่สร้าง',
+    faq2: 'กลับมาจัดการภายหลังได้ไหม?', faq2a: 'ได้ เปิดลิงก์ของฉันจากอุปกรณ์เดิมเพื่อแก้ไข หยุด ดูข้อมูล หรือลบลิงก์',
+    faq3: 'ถ้าล้างข้อมูลเบราว์เซอร์จะเกิดอะไรขึ้น?', faq3a: 'ควรส่งออก Recovery key จากหน้าลิงก์ของฉันก่อนล้างข้อมูลหรือย้ายอุปกรณ์',
+    faq4: 'ป้องกันลิงก์ได้ไหม?', faq4a: 'ได้ด้วยรหัสผ่าน วันหมดอายุ หรือกำหนดจำนวนผู้เข้าชมสูงสุด',
+    theme: 'ธีม', language: 'ภาษา',
+  },
+} as const;
+
+export type MessageKey = keyof typeof messages.en;
