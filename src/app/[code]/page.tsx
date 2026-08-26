@@ -72,7 +72,7 @@ export default function ShortLinkPage({ params }: { params: { code: string } }) 
       <section className={'redirect-card state-'+state}>
         <div className="redirect-code"><span>{system.linkCode}</span><code>/{params.code}</code></div>
 
-        {state==='checking'?<div className="redirect-state"><div className="redirect-loader" aria-hidden="true"><span/><span/><span/></div><p className="state-kicker">MemoLink</p><h1>{text.checking}</h1><p>{text.retryBody}</p></div>:null}
+        {state==='checking'?<div className="redirect-state"><div className="redirect-loader" aria-hidden="true"><span/><span/><span/></div><p className="state-kicker">MemoLink</p><h1>{text.checking}</h1></div>:null}
 
         {state==='password'?<div className="redirect-state">
           <StateIcon state="password"/>

@@ -1,12 +1,12 @@
 'use client';
 
 import { createContext, useContext, useEffect, useMemo, useState } from 'react';
-import { Locale, MessageKey, messages } from '@/config/i18n';
+import { Locale, MessageKey, locales, messages } from '@/config/i18n';
 
 type Theme = 'light' | 'dark' | 'system';
 type Preferences = { locale: Locale; setLocale: (locale: Locale) => void; theme: Theme; setTheme: (theme: Theme) => void; t: (key: MessageKey) => string };
 const Context = createContext<Preferences | null>(null);
-const localeSet = new Set<string>(['en', 'th', 'zh', 'ja', 'ko']);
+const localeSet = new Set<string>(locales);
 
 export function PreferencesProvider({ children }: { children: React.ReactNode }) {
   const [locale, setLocaleState] = useState<Locale>('en');

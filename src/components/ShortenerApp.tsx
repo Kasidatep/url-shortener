@@ -4,10 +4,12 @@ import Link from 'next/link';
 import { useMemo, useState } from 'react';
 import { ClipboardDocumentIcon, QrCodeIcon, ShareIcon } from '@heroicons/react/24/outline';
 import QRCodeComponent from './QRCodeComponent';
+import ShareKit from './ShareKit';
 import PreferenceControls from './PreferenceControls';
 import { usePreferences } from './PreferencesProvider';
 import { getDeviceKey } from '@/lib/device';
 import { getPageMessages } from '@/config/page-i18n';
+import { experienceMessages } from '@/config/experience-i18n';
 import MemoLinkLogo from './MemoLinkLogo';
 import { useNotifications } from './NotificationTray';
 
@@ -33,6 +35,7 @@ export default function ShortenerApp() {
   const { t, locale } = usePreferences();
   const { notify } = useNotifications();
   const pageText = getPageMessages(locale);
+  const experience = experienceMessages[locale];
   const [url, setUrl] = useState('');
   const [alias, setAlias] = useState('');
   const [password, setPassword] = useState('');
@@ -45,6 +48,7 @@ export default function ShortenerApp() {
   const [utm, setUtm] = useState<Utm>(EMPTY_UTM);
   const [shortUrl, setShortUrl] = useState('');
   const [showQr, setShowQr] = useState(false);
+  const [shareOpen, setShareOpen] = useState(false);
   const [status, setStatus] = useState<'idle' | 'loading' | 'copied'>('idle');
   const [error, setError] = useState('');
 
@@ -70,7 +74,6 @@ export default function ShortenerApp() {
     try { setUrl(await navigator.clipboard.readText()); } catch { notify('Clipboard access was not available', 'error'); }
   }
   async function copy() { await navigator.clipboard.writeText(shortUrl); setStatus('copied'); notify(t('copied'), 'success'); window.setTimeout(() => setStatus('idle'), 1600); }
-  async function share() { if (navigator.share) await navigator.share({ title: 'Short link', url: shortUrl }); else await copy(); }
   function changeUtm(key: keyof Utm, value: string) { setUtm(current => ({ ...current, [key]: value })); }
 
   return <main>
@@ -106,9 +109,10 @@ export default function ShortenerApp() {
         <p className="trust-line">{t('trust')}</p>
       </form>
 
-      {shortUrl ? <section className="result-card" aria-live="polite"><div><span className="success-dot">✓</span><div><small>{t('ready')}</small><a href={shortUrl} target="_blank" rel="noreferrer">{shortUrl}</a></div></div><div className="result-actions"><button type="button" onClick={copy}><ClipboardDocumentIcon />{status === 'copied' ? t('copied') : t('copy')}</button><button type="button" onClick={share}><ShareIcon />{t('share')}</button><button type="button" onClick={() => setShowQr(value => !value)}><QrCodeIcon />{t('qr')}</button></div>{showQr ? <QRCodeComponent shortUrl={shortUrl} /> : null}<Link href="/manage" className="manage-link">{t('manage')}</Link></section> : null}
+      {shortUrl ? <section className="result-card" aria-live="polite"><div><span className="success-dot">✓</span><div><small>{t('ready')}</small><a href={shortUrl} target="_blank" rel="noreferrer">{shortUrl}</a></div></div><div className="result-actions"><button type="button" onClick={copy}><ClipboardDocumentIcon />{status === 'copied' ? t('copied') : t('copy')}</button><button type="button" onClick={() => setShareOpen(true)}><ShareIcon />{t('share')}</button><button type="button" onClick={() => setShowQr(value => !value)}><QrCodeIcon />{t('qr')}</button></div>{showQr ? <QRCodeComponent shortUrl={shortUrl} /> : null}<Link href="/manage" className="manage-link">{t('manage')}</Link></section> : null}
+      <ShareKit open={shareOpen} url={shortUrl} onClose={() => setShareOpen(false)}/>
     </section>
 
-    <section className="features" aria-labelledby="features-title"><div><p className="kicker">{t('featuresKicker')}</p><h2 id="features-title">{t('featuresTitle')}</h2></div><div className="feature-grid">{[[t('f1Title'),t('f1Body')],[t('f2Title'),t('f2Body')],[t('f3Title'),t('f3Body')]].map((item,index) => <article key={item[0]}><span>0{index + 1}</span><h3>{item[0]}</h3><p>{item[1]}</p></article>)}</div></section>
+    <section className="features" aria-labelledby="features-title"><div><p className="kicker">{t('featuresKicker')}</p><h2 id="features-title">{t('featuresTitle')}</h2></div><div className="feature-grid">{[[t('f1Title'),t('f1Body')],[t('f2Title'),t('f2Body')],[t('f3Title'),t('f3Body')],[experience.shareFeatureTitle,experience.shareFeatureBody]].map((item,index) => <article key={item[0]}><span>0{index + 1}</span><h3>{item[0]}</h3><p>{item[1]}</p></article>)}</div></section>
   </main>;
 }
