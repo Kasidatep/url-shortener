@@ -63,4 +63,17 @@ export const extraFaqSections: Record<Locale, FaqSection[]> = {
       ['복구 키를 잃어버리면 어떻게 되나요?', 'MemoLink는 복구 키를 다시 만들 수 없습니다. 리디렉션은 계속되지만 원래 키 없이는 관리 권한을 복원할 수 없습니다.'],
     ]],
   ],
+  es:[
+    ['Compartir y campañas',[
+      ['¿Puedo usar el mismo código QR después de cambiar el destino?','Sí. El QR apunta a la misma dirección MemoLink, por lo que los códigos impresos o compartidos continúan funcionando.'],
+      ['¿Cómo debo usar los parámetros UTM?','Abre las opciones de campaña, añade campaña, fuente y medio, y crea el enlace. MemoLink los incorpora de forma segura.'],
+      ['¿Puedo compartir desde el teléfono?','Sí. Puedes copiar el enlace, descargar el QR o usar el menú para compartir del dispositivo.'],
+    ]],
+    ['Solución de problemas y seguridad',[
+      ['¿Por qué aparece como no disponible?','El propietario puede haberlo pausado, puede haber caducado o alcanzado su límite, o haber sido eliminado.'],
+      ['¿Por qué no está disponible mi nombre personalizado?','Los nombres son únicos. Prueba una variación clara, añade el nombre de la campaña o usa uno generado automáticamente.'],
+      ['¿Qué pasa si pierdo la clave de recuperación?','MemoLink no puede recrearla. Los enlaces continúan funcionando, pero no podrás recuperar su gestión sin la clave original.'],
+    ]],
+  ]
+
 };

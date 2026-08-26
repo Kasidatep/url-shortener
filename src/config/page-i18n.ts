@@ -42,7 +42,34 @@ export const pageMessages = {
   ko: {
     navHome:'홈',navCreate:'만들기',navLinks:'내 링크',navFaq:'도움말',dashboardEyebrow:'비공개 분석',dashboardTitle:'내 링크',dashboardDescription:'링크를 관리하고 사용 현황을 확인하세요',createLink:'+ 링크 만들기',recovery:'복구 키',noLinks:'링크가 없습니다',noLinksBody:'몇 초 안에 첫 링크를 만드세요',loadingLinks:'불러오는 중…',clicks:'클릭',created:'생성',lastVisit:'최근 방문',live:'사용 중',paused:'일시 중지',copy:'복사',pause:'중지',activate:'활성화',delete:'삭제',analytics:'분석',visits30d:'최근 30일',countries:'국가',devices:'기기',referrers:'유입 경로',noAnalytics:'첫 방문 후 분석이 표시됩니다',recoverTitle:'링크 소유권 이동',recoverBody:'이 키는 비공개로 보관하세요',copyRecovery:'복구 키 복사',pasteRecovery:'복구 키 붙여넣기',restore:'복원',checking:'링크 여는 중…',protectedTitle:'비밀번호 필요',protectedBody:'링크 소유자가 공유한 비밀번호를 입력하세요',password:'비밀번호',continue:'계속',unavailable:'링크를 사용할 수 없음',unavailableBody:'중지, 만료 또는 제한 도달 상태일 수 있습니다',missing:'링크를 찾을 수 없음',missingBody:'주소를 확인하거나 새 링크를 요청하세요',retryTitle:'링크를 열 수 없음',retryBody:'연결을 확인하고 다시 시도하세요',retry:'다시 시도',faqTitle:'도움말 센터',faqDescription:'링크 생성, 공유 및 관리에 필요한 실용적인 답변',
     faqSections:[['링크 만들기',[['어떤 URL을 줄일 수 있나요?','공개 HTTP/HTTPS를 지원하며 안전을 위해 로컬 및 사설 네트워크 주소를 차단합니다.'],['짧은 이름을 선택할 수 있나요?','3~48자의 영문, 숫자, 하이픈 또는 밑줄을 사용할 수 있습니다.'],['추적 정리는 무엇인가요?','utm_*, gclid, fbclid를 제거한 뒤 새 UTM 값을 적용합니다.']]],['접근 및 만료',[['비밀번호는 안전한가요?','저장 전에 해시하며 URL이 아닌 안전한 요청 본문으로 전송합니다.'],['클릭 제한은 어떻게 계산하나요?','성공한 리디렉션을 원자적으로 계산하고 한도에 도달하면 중단합니다.'],['어떤 시간대를 사용하나요?','기기 시간대를 사용하고 서버에는 일관된 시점으로 저장합니다.']]],['소유권 및 분석',[['왜 기기에 연결되나요?','브라우저가 비공개 복구 키를 만들고 서버는 단방향 해시만 저장합니다.'],['기기를 이동하려면?','내 링크에서 복구 키를 복사해 새 기기에서 복원하세요.'],['어떤 분석을 수집하나요?','일자, 국가, 기기 유형, 유입 도메인의 집계만 저장하며 원시 IP는 저장하지 않습니다.']]]]
+  },
+  es:{
+    navHome:'Inicio',navCreate:'Crear',navLinks:'Mis enlaces',navFaq:'Ayuda',
+    dashboardEyebrow:'ANÁLISIS PRIVADO',dashboardTitle:'Mis enlaces',dashboardDescription:'Gestiona tus enlaces y entiende cómo se utilizan.',createLink:'+ Crear enlace',recovery:'Clave de recuperación',
+    noLinks:'Aún no hay enlaces',noLinksBody:'Crea tu primer enlace corto en segundos.',loadingLinks:'Cargando enlaces…',clicks:'clics',created:'Creado',lastVisit:'Última visita',live:'Activo',paused:'Pausado',
+    copy:'Copiar',pause:'Pausar',activate:'Activar',delete:'Eliminar',analytics:'Análisis',visits30d:'Últimos 30 días',countries:'Países',devices:'Dispositivos',referrers:'Referencias',noAnalytics:'Los datos aparecerán después de la primera visita.',
+    recoverTitle:'Mover la propiedad',recoverBody:'Mantén esta clave privada. Quien la tenga podrá gestionar tus enlaces.',copyRecovery:'Copiar clave',pasteRecovery:'Pegar clave',restore:'Restaurar',
+    checking:'Abriendo enlace…',protectedTitle:'Se necesita contraseña',protectedBody:'Introduce la contraseña compartida por el propietario.',password:'Contraseña',continue:'Continuar',unavailable:'Enlace no disponible',unavailableBody:'Puede estar pausado, caducado o haber alcanzado su límite.',missing:'Enlace no encontrado',missingBody:'Comprueba la dirección o solicita un nuevo enlace.',retryTitle:'No se pudo abrir el enlace',retryBody:'Comprueba tu conexión e inténtalo de nuevo.',retry:'Intentar de nuevo',
+    faqTitle:'Centro de ayuda',faqDescription:'Respuestas prácticas para crear, compartir y gestionar enlaces.',
+    faqSections:[
+      ['Crear enlaces',[
+        ['¿Qué URL puedo acortar?','MemoLink admite direcciones HTTP y HTTPS públicas. Bloquea localhost y redes privadas por seguridad.'],
+        ['¿Puedo elegir el nombre corto?','Sí. Usa entre 3 y 48 letras, números, guiones o guiones bajos. Los nombres reservados o existentes no están disponibles.'],
+        ['¿Qué hace la limpieza de seguimiento?','Elimina parámetros publicitarios comunes como utm_*, gclid y fbclid antes de aplicar los nuevos valores UTM.']
+      ]],
+      ['Acceso y caducidad',[
+        ['¿Cómo funciona la protección con contraseña?','La contraseña se cifra mediante hash antes de guardarse y se envía en el cuerpo seguro de la solicitud, nunca en la URL.'],
+        ['¿Cuándo caduca un enlace limitado por clics?','Cada redirección correcta consume un clic de forma atómica. Al alcanzar el límite, el enlace deja de redirigir.'],
+        ['¿Qué zona horaria se utiliza?','El formulario usa la zona horaria del dispositivo y guarda el instante de forma consistente en el servidor.']
+      ]],
+      ['Propiedad y análisis',[
+        ['¿Por qué la gestión depende del dispositivo?','El navegador crea una clave privada y el servidor guarda únicamente un hash irreversible.'],
+        ['¿Cómo traslado mis enlaces a otro dispositivo?','Copia la clave de recuperación desde Mis enlaces y restáurala en el nuevo dispositivo.'],
+        ['¿Qué datos se recopilan?','Solo agregados por día, país, tipo de dispositivo y dominio de referencia. No se guardan direcciones IP sin procesar.']
+      ]]
+    ]
   }
+
 } satisfies Record<Locale, { faqSections: Array<[string, Array<[string,string]>]> } & Record<string, unknown>>;
 
 export function getPageMessages(locale: Locale) {

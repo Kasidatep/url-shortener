@@ -1,4 +1,4 @@
-export const locales = ['en', 'th', 'zh', 'ja', 'ko'] as const;
+export const locales = ['en', 'th', 'zh', 'ja', 'ko', 'es'] as const;
 export type Locale = typeof locales[number];
 
 const en = {
@@ -53,7 +53,18 @@ export const messages = {
     featuresKicker:'필요한 기능만', featuresTitle:'평소에는 간단하게, 필요할 때 강력하게', f1Title:'맞춤 설정', f1Body:'기억하기 쉬운 이름 사용', f2Title:'보호', f2Body:'접근 및 만료 제어', f3Title:'추적', f3Body:'이 기기에서 클릭 확인', f4Title:'이동', f4Body:'복구 키로 소유권 이전',
     faq:'FAQ', faqTitle:'알아두세요', faq1:'계정이 필요한가요?', faq1a:'아니요. 이 기기의 개인 키가 링크를 소유합니다.', faq2:'나중에 관리할 수 있나요?', faq2a:'이 기기의 내 링크에서 관리할 수 있습니다.', faq3:'기기를 바꾸면?', faq3a:'먼저 복구 키를 내보내세요.', faq4:'링크를 만료할 수 있나요?', faq4a:'날짜 또는 클릭 수로 설정할 수 있습니다.',
     theme:'테마', language:'언어'
+  },
+  es: {
+    ...en, myLinks:'Mis enlaces', eyebrow:'Simple. Privado. Tuyo.', heroA:'Acorta enlaces.', heroB:'Mantén el control.', heroDescription:'Crea enlaces cortos seguros y códigos QR sin registrarte.',
+    pasteLongLink:'Pega un enlace largo', paste:'Pegar', addOptions:'+ Configurar enlace', hideOptions:'− Ocultar ajustes', customName:'Nombre personalizado', password:'Contraseña', optional:'opcional', protectLink:'Añadir contraseña',
+    expiration:'Caducidad', never:'Nunca', afterClicks:'Límite de clics', dateTime:'Fecha y hora', maximumClicks:'Máximo de clics', expiresOn:'Caduca el', timezone:'Zona horaria del dispositivo',
+    campaignTools:'Campaña UTM', source:'Fuente', medium:'Medio', campaign:'Campaña', term:'Término', content:'Contenido', removeTracking:'Eliminar parámetros de seguimiento existentes',
+    loading:'Creando…', shorten:'Crear enlace corto', trust:'Privacidad por diseño · Gestionado en este dispositivo', ready:'Listo para compartir', copy:'Copiar', copied:'Copiado', share:'Compartir', qr:'Código QR', manage:'Gestionar enlace →',
+    featuresKicker:'TODO LO NECESARIO', featuresTitle:'Simple por fuera. Potente cuando lo necesitas.', f1Title:'Personalizable', f1Body:'Usa un nombre fácil de recordar.', f2Title:'Protegido', f2Body:'Añade controles de acceso y caducidad.', f3Title:'Medible', f3Body:'Consulta clics desde este dispositivo.', f4Title:'Portable', f4Body:'Mueve la propiedad con una clave de recuperación.',
+    faq:'Preguntas', faqTitle:'Información útil', faq1:'¿Necesito una cuenta?', faq1a:'No. Una clave privada de este dispositivo identifica tus enlaces.', faq2:'¿Puedo gestionarlos después?', faq2a:'Sí. Abre Mis enlaces desde este dispositivo.', faq3:'¿Qué ocurre si cambio de dispositivo?', faq3a:'Exporta antes tu clave de recuperación.', faq4:'¿Puedo hacer que el enlace caduque?', faq4a:'Sí, por fecha o por número de clics.',
+    theme:'Tema', language:'Idioma'
   }
+
 } as const;
 
 export type MessageKey = keyof typeof en;

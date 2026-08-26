@@ -9,6 +9,8 @@ import { rateLimit } from '@/lib/rate-limit';
 import { recordLinkClick } from '@/lib/analytics';
 
 export async function POST(request: NextRequest) {
+  const contentLength = Number(request.headers.get('content-length') || 0);
+  if (contentLength > 8192) return NextResponse.json({ message: 'Request too large' }, { status: 413 });
   const ip = request.headers.get('cf-connecting-ip') || request.headers.get('x-forwarded-for')?.split(',')[0] || 'unknown';
   if (!rateLimit(ip)) return NextResponse.json({ message: 'Too many links. Please wait a minute.' }, { status: 429 });
   const deviceKey = request.headers.get('x-device-key');
@@ -46,7 +48,7 @@ export async function POST(request: NextRequest) {
 
 export async function GET(request: NextRequest) {
   const code = new URL(request.url).searchParams.get('code');
-  if (!code) return NextResponse.json({ message: 'Code is required' }, { status: 400 });
+  if (!code || !/^[A-Za-z0-9_-]{3,48}$/.test(code)) return NextResponse.json({ message: 'Invalid code' }, { status: 400 });
   await connectMongo();
   const url = await Url.findOne({ shortUrl: code }).select('+password');
   if (!url) return NextResponse.json({ message: 'Short URL not found' }, { status: 404 });
