@@ -101,3 +101,39 @@ html[lang="th"] h1,html[lang="th"] h2,html[lang="th"] h3,html[lang="th"] .wordma
 @keyframes state-in{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}@keyframes redirect-wave{0%,100%{transform:translateY(0);opacity:.45}50%{transform:translateY(-10px);opacity:1}}
 @media(max-width:600px){.redirect-nav{height:64px;width:calc(100% - 24px)}.redirect-card{padding:18px 18px 26px;border-radius:20px}.redirect-code{margin-bottom:20px}.redirect-state-icon{width:58px;height:58px;border-radius:19px}.redirect-state h1{font-size:30px}.state-actions{grid-template-columns:1fr}.system-state-page{padding-top:48px}.system-state-page h1{font-size:42px}}
 @media(prefers-reduced-motion:reduce){.redirect-state,.redirect-loader span,.system-pulse i{animation:none!important}}
+
+
+/* Keep primary option controls on one line and give the mark a calm ambient loop. */
+.option-toggles{
+  display:flex;
+  align-items:center;
+  justify-content:flex-start;
+  gap:18px;
+  flex-wrap:nowrap;
+  overflow-x:auto;
+  scrollbar-width:none;
+}
+.option-toggles::-webkit-scrollbar{display:none}
+.option-toggles .advanced-toggle{
+  flex:0 0 auto;
+  white-space:nowrap;
+  text-align:left;
+}
+.brand-symbol{
+  transform-origin:50% 58%;
+  animation:brand-breathe 4.8s cubic-bezier(.45,0,.55,1) infinite;
+}
+.brand.wordmark:hover .brand-symbol{
+  animation-play-state:paused;
+}
+@keyframes brand-breathe{
+  0%,100%{transform:translateY(0) rotate(0deg) scale(1);filter:drop-shadow(0 6px 14px rgba(100,87,232,.22))}
+  45%{transform:translateY(-2px) rotate(-2deg) scale(1.025);filter:drop-shadow(0 10px 20px rgba(100,87,232,.34))}
+  55%{transform:translateY(-2px) rotate(2deg) scale(1.025);filter:drop-shadow(0 10px 20px rgba(100,87,232,.34))}
+}
+@media(max-width:760px){
+  .option-toggles{display:flex;justify-content:flex-start;gap:14px}
+}
+@media(max-width:430px){
+  .option-toggles{display:flex;grid-template-columns:none}
+}
