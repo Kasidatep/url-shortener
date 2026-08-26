@@ -1,22 +1,21 @@
 {
-    "name": "KasidatePLUS - Url Shortener",
-    "short_name": "SHORT Url",
-    "description": "Create short URLs for free",
-    "start_url": "/",
-    "display": "standalone",
-    "background_color": "#ffffff",
-    "theme_color": "#3949AB",
-    "icons": [
-      {
-        "src": "/icon-192x192.jpg",
-        "sizes": "192x192",
-        "type": "image/jpeg"
-      },
-      {
-        "src": "/icon-512x512.jpg",
-        "sizes": "512x512",
-        "type": "image/jpeg"
-      }
-    ]
-  }
-  
+  "name": "MemoLink — Short links with control",
+  "short_name": "MemoLink",
+  "description": "Create and manage secure short links and QR codes.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#f7f8fc",
+  "theme_color": "#6457e8",
+  "icons": [
+    {
+      "src": "/icon-192x192.jpg",
+      "sizes": "192x192",
+      "type": "image/jpeg"
+    },
+    {
+      "src": "/icon-512x512.jpg",
+      "sizes": "512x512",
+      "type": "image/jpeg"
+    }
+  ]
+}
