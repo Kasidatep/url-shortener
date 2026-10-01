@@ -62,3 +62,37 @@ html[lang="th"] .create-intro h1 { letter-spacing:-.02em; line-height:1.5; }
 @keyframes composer-enter { from { opacity:0; transform:translateY(5px); } to { opacity:1; transform:none; } }@keyframes create-spin { to { transform:rotate(360deg); } }
 @media(max-width:640px) { .create-workspace { margin:28px auto 32px; }.create-intro { margin-bottom:24px; }.create-intro h1 { font-size:30px; }.create-intro>p { font-size:14px; }.create-surface { border-radius:15px; }.create-progress { padding:17px 20px; }.link-composer,.creation-result { padding:24px 20px 20px; }.destination-input { padding-left:11px; gap:7px; }.destination-input>svg { display:none; }.destination-input button { padding:9px 10px; }.option-heading { padding:15px 12px; gap:10px; }.option-content { padding:5px 12px 18px; }.options-heading { margin-top:20px; }.options-heading small { display:none; }.campaign-fields { grid-template-columns:1fr; }.created-url { font-size:19px; }.create-page+.site-footer { margin-top:28px; padding-top:24px; }.create-page+.site-footer .footer-identity p { display:none; } }
 @media(prefers-reduced-motion:reduce) { .link-composer,.creation-result,.option-content,.composer-options,.qr-download-panel,.create-spinner { animation:none; }.create-page * { transition:none!important; } }
+
+/* A quiet canvas, one primary action, and one optional settings disclosure. */
+.create-workspace { width:min(680px,calc(100% - 40px)); margin:clamp(48px,9vh,100px) auto 72px; }
+.create-intro { margin-bottom:32px; }
+.create-intro h1 { font-size:clamp(32px,4.5vw,52px); font-weight:650; letter-spacing:-.05em; }
+.create-intro>p { font-size:16px; }
+.create-surface { border:0; border-radius:24px; box-shadow:0 12px 60px #20301a09; }
+.link-composer,.creation-result { padding:32px; }
+.destination-input { background:var(--surface); min-height:64px; border-radius:14px; }
+.destination-input button { border:0; background:var(--surface2); border-radius:9px; }
+.create-submit { margin-top:16px; min-height:56px; border-radius:14px; font-size:16px; }
+.options-heading { margin-top:16px; border-top:1px solid var(--line); padding-top:12px; }
+.options-heading>button:first-child { color:var(--muted); font-weight:450; }
+.options-heading small { display:none; }
+.composer-options { border:0; border-radius:0; margin-top:12px; }
+.composer-option+.composer-option { margin-top:24px; padding-top:24px; }
+.option-section-title { font-size:14px; font-weight:600; margin:0 0 16px; }
+.option-content { padding:0; }
+.create-assurance { margin:12px 0 0; }
+.create-page .nav { border-bottom:0; }
+.create-page .nav-actions .nav-link { border:0; background:transparent; }
+.create-page~.site-footer { margin-top:0; padding-top:24px; padding-bottom:24px; }
+.create-page~.site-footer .footer-identity { display:none; }
+@media(max-width:640px) {
+ .create-workspace { width:calc(100% - 32px); margin:36px auto 44px; }
+ .create-intro h1 { font-size:32px; line-height:1.4; }
+ .create-intro>p { font-size:14px; }
+ .create-surface { border-radius:20px; }
+ .link-composer,.creation-result { padding:24px 18px; }
+ .create-page .nav { row-gap:8px; padding-bottom:0; }
+ .create-page .nav-actions { justify-content:flex-end; }
+ .create-page .nav-actions .nav-link { min-height:36px; padding:6px 8px; font-size:12px; }
+ .create-page~.site-footer { margin-top:0; }
+}

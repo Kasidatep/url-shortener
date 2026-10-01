@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { ArrowRightIcon, ArrowUpRightIcon, CheckIcon, ChevronDownIcon, ClipboardDocumentIcon, LinkIcon, LockClosedIcon, PlusIcon, QrCodeIcon, ShareIcon, AdjustmentsHorizontalIcon } from '@heroicons/react/24/outline';
+import { ArrowRightIcon, ArrowUpRightIcon, CheckIcon, ChevronDownIcon, ClipboardDocumentIcon, LinkIcon, LockClosedIcon, PlusIcon, QrCodeIcon, ShareIcon } from '@heroicons/react/24/outline';
 import QRCodeComponent from './QRCodeComponent';
 import ShareKit from './ShareKit';
 import AppHeader from './AppHeader';
@@ -117,37 +117,36 @@ export default function ShortenerApp() {
       copyTimer.current = setTimeout(() => setCopied(false), 2000);
     } catch { notify(t('clipboardFailed'), 'error'); }
   }
-  function toggle(value: Panel) { setPanel(current => current === value ? null : value); }
 
   return <main className="create-page">
     <AppHeader active="home"/>
     <section className="create-workspace" aria-labelledby="create-title">
-      <header className="create-intro"><span className="create-label">URL SHORTENER</span><h1 id="create-title">{copy.title}</h1><p>{copy.description}</p></header>
+      <header className="create-intro"><h1 id="create-title">{copy.title}</h1>{!result ? <p>{copy.description}</p> : null}</header>
       <div className="create-surface">
-        <ol className="create-progress" aria-label="MemoLink"><li aria-current={!result ? 'step' : undefined}><span>{result ? <CheckIcon aria-hidden="true"/> : '1'}</span>{copy.create}</li><li aria-current={result ? 'step' : undefined}><span>2</span>{copy.share}</li></ol>
         {!result ? <form onSubmit={submit} noValidate className="link-composer" aria-busy={loading}>
           <fieldset disabled={loading} className="composer-fields">
             <label className="destination-label" htmlFor="url">{t('pasteLongLink')}</label>
             <div className="destination-input"><LinkIcon aria-hidden="true"/><input ref={urlRef} id="url" name="url" type="url" inputMode="url" autoComplete="url" autoCapitalize="none" spellCheck={false} placeholder="https://example.com/your-link" value={url} onChange={event => { setUrl(event.target.value); setError(''); }} aria-invalid={!!error && errorField==='url'} aria-describedby={error && errorField==='url' ? 'url-hint create-error' : 'url-hint'} required/><button type="button" onClick={paste}>{t('paste')}</button></div>
             <p id="url-hint" className="composer-hint">{copy.urlHint}</p>
+            {error ? <p id="create-error" className="composer-error" role="alert">{error}</p> : null}
+            <button className="create-submit" type="submit" disabled={loading}>{loading ? <><i className="create-spinner" aria-hidden="true"/>{t('loading')}</> : <>{t('shorten')}<ArrowRightIcon aria-hidden="true"/></>}</button>
             <div className="options-heading"><button type="button" aria-expanded={optionsOpen} aria-controls="composer-options" onClick={()=>setOptionsOpen(value=>!value)}>{copy.options}<small>{copy.optional}</small>{hasOptions ? <CheckIcon aria-hidden="true"/> : null}<ChevronDownIcon aria-hidden="true"/></button>{hasOptions ? <button type="button" onClick={resetOptions}>{copy.reset}</button> : null}</div>
             {optionsOpen ? <div className="composer-options" id="composer-options">
               <div className="composer-option">
-                <button type="button" className="option-heading" aria-expanded={panel==='name'} aria-controls="name-panel" onClick={()=>toggle('name')}><LinkIcon aria-hidden="true"/><span><strong>{t('customName')}</strong><small>{alias ? '/' + alias : copy.autoName}</small></span>{alias ? <i className="option-set"><CheckIcon aria-hidden="true"/></i> : null}<ChevronDownIcon aria-hidden="true"/></button>
-                {panel==='name' ? <div id="name-panel" className="option-content"><label htmlFor="alias">{t('customName')}</label><div className="alias-input"><span aria-hidden="true">/</span><input id="alias" aria-invalid={!!error && errorField==='alias'} value={alias} onChange={event=>setAlias(event.target.value)} maxLength={48} autoCapitalize="none" spellCheck={false} placeholder="my-next-idea" aria-describedby={error && errorField==='alias' ? 'alias-hint create-error' : 'alias-hint'}/></div><p id="alias-hint" className="composer-hint">{copy.aliasHint}</p></div> : null}
+                <h3 className="option-section-title">{t('customName')}</h3>
+                {optionsOpen ? <div id="name-panel" className="option-content"><label htmlFor="alias">{t('customName')}</label><div className="alias-input"><span aria-hidden="true">/</span><input id="alias" aria-invalid={!!error && errorField==='alias'} value={alias} onChange={event=>setAlias(event.target.value)} maxLength={48} autoCapitalize="none" spellCheck={false} placeholder="my-next-idea" aria-describedby={error && errorField==='alias' ? 'alias-hint create-error' : 'alias-hint'}/></div><p id="alias-hint" className="composer-hint">{copy.aliasHint}</p></div> : null}
               </div>
               <div className="composer-option">
-                <button type="button" className="option-heading" aria-expanded={panel==='access'} aria-controls="access-panel" onClick={()=>toggle('access')}><LockClosedIcon aria-hidden="true"/><span><strong>{copy.access}</strong><small>{accessSet ? [password ? t('password') : '', expirationType==='clicks' ? t('afterClicks') : expirationType==='datetime' ? t('dateTime') : ''].filter(Boolean).join(' · ') : copy.accessHint}</small></span>{accessSet ? <i className="option-set"><CheckIcon aria-hidden="true"/></i> : null}<ChevronDownIcon aria-hidden="true"/></button>
-                {panel==='access' ? <div id="access-panel" className="option-content"><label htmlFor="password">{t('password')} <small>{t('optional')}</small></label><input id="password" type="password" autoComplete="new-password" value={password} onChange={event=>setPassword(event.target.value)} maxLength={128} placeholder={t('protectLink')}/><label htmlFor="expiration">{t('expiration')}</label><select id="expiration" value={expirationType} onChange={event=>setExpirationType(event.target.value as Expiration)}><option value="none">{t('never')}</option><option value="clicks">{t('afterClicks')}</option><option value="datetime">{t('dateTime')}</option></select>{expirationType==='clicks' ? <><label htmlFor="clicks">{t('maximumClicks')}</label><input id="clicks" aria-invalid={!!error && errorField==='clicks'} aria-describedby={error && errorField==='clicks' ? 'create-error' : undefined} type="number" inputMode="numeric" min="1" max="1000000" value={maxClicks} onChange={event=>setMaxClicks(event.target.value)}/></> : null}{expirationType==='datetime' ? <><label htmlFor="date">{t('expiresOn')}</label><input id="date" aria-invalid={!!error && errorField==='date'} aria-describedby={error && errorField==='date' ? 'create-error' : undefined} type="datetime-local" value={expirationDate} onChange={event=>setExpirationDate(event.target.value)}/><p className="composer-hint">{t('timezone')}</p></> : null}</div> : null}
+                <h3 className="option-section-title">{copy.access}</h3>
+                {optionsOpen ? <div id="access-panel" className="option-content"><label htmlFor="password">{t('password')} <small>{t('optional')}</small></label><input id="password" type="password" autoComplete="new-password" value={password} onChange={event=>setPassword(event.target.value)} maxLength={128} placeholder={t('protectLink')}/><label htmlFor="expiration">{t('expiration')}</label><select id="expiration" value={expirationType} onChange={event=>setExpirationType(event.target.value as Expiration)}><option value="none">{t('never')}</option><option value="clicks">{t('afterClicks')}</option><option value="datetime">{t('dateTime')}</option></select>{expirationType==='clicks' ? <><label htmlFor="clicks">{t('maximumClicks')}</label><input id="clicks" aria-invalid={!!error && errorField==='clicks'} aria-describedby={error && errorField==='clicks' ? 'create-error' : undefined} type="number" inputMode="numeric" min="1" max="1000000" value={maxClicks} onChange={event=>setMaxClicks(event.target.value)}/></> : null}{expirationType==='datetime' ? <><label htmlFor="date">{t('expiresOn')}</label><input id="date" aria-invalid={!!error && errorField==='date'} aria-describedby={error && errorField==='date' ? 'create-error' : undefined} type="datetime-local" value={expirationDate} onChange={event=>setExpirationDate(event.target.value)}/><p className="composer-hint">{t('timezone')}</p></> : null}</div> : null}
               </div>
               <div className="composer-option">
-                <button type="button" className="option-heading" aria-expanded={panel==='campaign'} aria-controls="campaign-panel" onClick={()=>toggle('campaign')}><AdjustmentsHorizontalIcon aria-hidden="true"/><span><strong>{t('campaignTools')}</strong><small>{campaignSet ? [cleanTracking ? t('removeTracking') : '', ...Object.entries(utm).filter(([,value])=>value.trim()).map(([key])=>'utm_'+key)].filter(Boolean).join(' · ') : copy.campaignHint}</small></span>{campaignSet ? <i className="option-set"><CheckIcon aria-hidden="true"/></i> : null}<ChevronDownIcon aria-hidden="true"/></button>
-                {panel==='campaign' ? <div id="campaign-panel" className="option-content"><label className="tracking-choice"><input type="checkbox" checked={cleanTracking} onChange={event=>setCleanTracking(event.target.checked)}/><span>{t('removeTracking')}</span></label><div className="campaign-fields">{(Object.keys(EMPTY_UTM) as Array<keyof Utm>).map(key=><div key={key}><label htmlFor={'utm-'+key}>{t(key)}</label><input id={'utm-'+key} value={utm[key]} onChange={event=>setUtm(current=>({...current,[key]:event.target.value}))} placeholder={key==='source' ? 'newsletter' : key==='medium' ? 'email' : key==='campaign' ? 'summer-launch' : ''}/></div>)}</div></div> : null}
+                <h3 className="option-section-title">{t('campaignTools')}</h3>
+                {optionsOpen ? <div id="campaign-panel" className="option-content"><label className="tracking-choice"><input type="checkbox" checked={cleanTracking} onChange={event=>setCleanTracking(event.target.checked)}/><span>{t('removeTracking')}</span></label><div className="campaign-fields">{(Object.keys(EMPTY_UTM) as Array<keyof Utm>).map(key=><div key={key}><label htmlFor={'utm-'+key}>{t(key)}</label><input id={'utm-'+key} value={utm[key]} onChange={event=>setUtm(current=>({...current,[key]:event.target.value}))} placeholder={key==='source' ? 'newsletter' : key==='medium' ? 'email' : key==='campaign' ? 'summer-launch' : ''}/></div>)}</div></div> : null}
               </div>
             </div>
             : null}
-            {error ? <p id="create-error" className="composer-error" role="alert">{error}</p> : null}
-            <button className="create-submit" type="submit" disabled={loading}>{loading ? <><i className="create-spinner" aria-hidden="true"/>{t('loading')}</> : <>{t('shorten')}<ArrowRightIcon aria-hidden="true"/></>}</button>
+
           </fieldset>
           <p className="create-assurance"><LockClosedIcon aria-hidden="true"/>{copy.noAccount}</p>
         </form> : <section className="creation-result" aria-labelledby="result-title">
@@ -161,7 +160,6 @@ export default function ShortenerApp() {
           <button className="create-another" type="button" onClick={another}><PlusIcon aria-hidden="true"/>{copy.another}</button>
         </section>}
       </div>
-      <div className="create-help"><span>MemoLink</span><Link href="/faq">{copy.help}<ArrowUpRightIcon aria-hidden="true"/></Link></div>
     </section>
     {result ? <ShareKit open={shareOpen} url={result.shortUrl} onClose={closeShare}/> : null}
   </main>;
