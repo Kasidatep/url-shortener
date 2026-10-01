@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import { LinkIcon } from '@heroicons/react/24/outline';
 import { useEffect, useMemo, useState } from 'react';
 import AppHeader from '@/components/AppHeader';
 import ConfirmDialog from '@/components/ConfirmDialog';
@@ -35,6 +36,7 @@ export default function ManagePage() {
   const { notify } = useNotifications();
   const [links, setLinks] = useState<LinkItem[]>([]);
   const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState(false);
   const [origin, setOrigin] = useState('');
   const [selected, setSelected] = useState<string | null>(null);
   const [analytics, setAnalytics] = useState<Record<string,Analytics>>({});
@@ -44,9 +46,13 @@ export default function ManagePage() {
   const [pendingDelete, setPendingDelete] = useState<string | null>(null);
 
   async function load() {
-    setLoading(true);
-    const response = await fetch('/api/links', { headers: { 'x-device-key': getDeviceKey() }, cache: 'no-store' });
-    const data = await response.json(); setLinks(data.links || []); setLoading(false);
+    setLoading(true); setLoadError(false);
+    try {
+      const response = await fetch('/api/links', { headers: { 'x-device-key': getDeviceKey() }, cache: 'no-store' });
+      if (!response.ok) throw new Error('Unable to load links');
+      const data = await response.json(); setLinks(data.links || []);
+    } catch { setLoadError(true); }
+    finally { setLoading(false); }
   }
   useEffect(() => { setOrigin(window.location.origin); void load(); }, []);
 
@@ -97,18 +103,18 @@ export default function ManagePage() {
   return <main>
     <AppHeader active="links" />
     <div className="dashboard-shell">
-      <header className="dashboard-head"><div><p className="kicker">{text.dashboardEyebrow}</p><h1>{text.dashboardTitle}</h1><p>{text.dashboardDescription}</p></div><div className="dashboard-actions"><button className="secondary-action" onClick={() => setRecoveryOpen(value => !value)}>{text.recovery}</button><Link href="/" className="primary-link">{text.createLink}</Link></div></header>
+      <header className="dashboard-head"><div><p className="kicker">{text.dashboardEyebrow}</p><h1>{text.dashboardTitle}</h1><p>{text.dashboardDescription}</p></div><div className="dashboard-actions"><button className="secondary-action" aria-expanded={recoveryOpen} onClick={() => setRecoveryOpen(value => !value)}>{text.recovery}</button><Link href="/" className="primary-link">{text.createLink}</Link></div></header>
 
-      <section className="summary-grid"><article><span>{text.navLinks}</span><strong>{links.length}</strong></article><article><span>{text.clicks}</span><strong>{totals.clicks.toLocaleString(locale)}</strong></article><article><span>{text.live}</span><strong>{totals.active}</strong></article></section>
+      <section className="summary-grid" aria-busy={loading}><article><span>{text.navLinks}</span><strong>{loading || loadError ? '—' : links.length}</strong></article><article><span>{text.clicks}</span><strong>{loading || loadError ? '—' : totals.clicks.toLocaleString(locale)}</strong></article><article><span>{text.live}</span><strong>{loading || loadError ? '—' : totals.active}</strong></article></section>
 
       {recoveryOpen ? <section className="recovery-card"><div><h2>{text.recoverTitle}</h2><p>{text.recoverBody}</p></div><div className="recovery-actions"><button onClick={copyRecovery}>{text.copyRecovery}</button><input aria-label={text.pasteRecovery} placeholder={text.pasteRecovery} value={recoveryKey} onChange={event => setRecoveryKey(event.target.value)} /><button onClick={restore}>{text.restore}</button></div></section> : null}
 
-      {loading ? <div className="empty-state">{text.loadingLinks}</div> : links.length === 0 ? <div className="empty-state"><h2>{text.noLinks}</h2><p>{text.noLinksBody}</p><Link href="/">{text.createLink} →</Link></div> : <div className="link-list">
+      {loadError ? <section className="load-error" role="alert"><h2>{dialog.actionFailed}</h2><p>{text.retryBody}</p><button className="secondary-action" onClick={()=>void load()}>{text.retry}</button></section> : loading ? <div className="empty-state" role="status">{text.loadingLinks}</div> : links.length === 0 ? <div className="empty-state"><LinkIcon aria-hidden="true"/><h2>{text.noLinks}</h2><p>{text.noLinksBody}</p><Link href="/">{text.createLink} →</Link></div> : <div className="link-list">
         {links.map(item => {
           const detail = analytics[item.shortUrl];
           return <article className={selected === item.shortUrl ? 'link-card expanded' : 'link-card'} key={item.shortUrl}>
             <div className="link-card-row"><div className="link-main"><div className="link-title"><span className={item.active ? 'status-live' : 'status-off'}>{item.active ? text.live : text.paused}</span><a href={'/' + item.shortUrl} target="_blank" rel="noreferrer">{origin}/{item.shortUrl}</a></div><p title={item.originalUrl}>{item.originalUrl}</p><div className="link-meta"><span><strong>{item.clicks.toLocaleString(locale)}</strong> {text.clicks}</span><span>{text.created} {new Date(item.createdAt).toLocaleDateString(locale)}</span>{item.lastClickedAt ? <span>{text.lastVisit} {new Date(item.lastClickedAt).toLocaleDateString(locale)}</span> : null}</div></div>
-            <div className="link-actions"><button onClick={() => void copyLink(item.shortUrl)}>{text.copy}</button><button onClick={() => loadAnalytics(item.shortUrl)}>{text.analytics}</button><button onClick={() => void update(item.shortUrl,{active:!item.active})}>{item.active ? text.pause : text.activate}</button><button className="danger" onClick={() => setPendingDelete(item.shortUrl)}>{text.delete}</button></div></div>
+            <div className="link-actions"><button onClick={() => void copyLink(item.shortUrl)}>{text.copy}</button><button aria-expanded={selected===item.shortUrl} onClick={() => loadAnalytics(item.shortUrl)}>{text.analytics}</button><button onClick={() => void update(item.shortUrl,{active:!item.active})}>{item.active ? text.pause : text.activate}</button><button className="danger" onClick={() => setPendingDelete(item.shortUrl)}>{text.delete}</button></div></div>
             {selected === item.shortUrl ? <section className="analytics-panel">{analyticsLoading && !detail ? <p>{text.loadingLinks}</p> : detail ? <><div className="analytics-head"><div><span>{text.visits30d}</span><strong>{detail.visits30d.toLocaleString(locale)}</strong></div><Trend values={detail.daily} /></div><div className="breakdown-grid"><Breakdown title={text.countries} values={detail.countries}/><Breakdown title={text.devices} values={detail.devices}/><Breakdown title={text.referrers} values={detail.referrers}/></div></> : <p>{text.noAnalytics}</p>}</section> : null}
           </article>;
         })}

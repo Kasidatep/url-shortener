@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { useCallback, useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useParams, useRouter } from 'next/navigation';
 import { ArrowPathIcon, ExclamationTriangleIcon, EyeIcon, EyeSlashIcon, LinkIcon, LockClosedIcon } from '@heroicons/react/24/outline';
 import PreferenceControls from '@/components/PreferenceControls';
 import MemoLinkLogo from '@/components/MemoLinkLogo';
@@ -18,7 +18,8 @@ function StateIcon({state}:{state:Exclude<LinkState,'checking'>}){
   </div>;
 }
 
-export default function ShortLinkPage({ params }: { params: { code: string } }) {
+export default function ShortLinkPage() {
+  const params = useParams<{ code: string }>();
   const router=useRouter();
   const {locale}=usePreferences();
   const text=getPageMessages(locale);
@@ -69,7 +70,7 @@ export default function ShortLinkPage({ params }: { params: { code: string } }) 
   return <main className="redirect-page">
     <header className="redirect-nav"><MemoLinkLogo/><PreferenceControls/></header>
     <div className="redirect-shell">
-      <section className={'redirect-card state-'+state}>
+      <section className={'redirect-card state-'+state} aria-live="polite" aria-busy={state==='checking'}>
         <div className="redirect-code"><span>{system.linkCode}</span><code>/{params.code}</code></div>
 
         {state==='checking'?<div className="redirect-state"><div className="redirect-loader" aria-hidden="true"><span/><span/><span/></div><p className="state-kicker">MemoLink</p><h1>{text.checking}</h1></div>:null}

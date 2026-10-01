@@ -6,8 +6,8 @@ export const size={width:1200,height:630};
 export const contentType='image/png';
 function cleanCode(code:string){return code.replace(/[^a-zA-Z0-9_-]/g,'').slice(0,48)||'link';}
 
-export default async function Image({params}:{params:{code:string}}){
-  const code=cleanCode(params.code);
+export default async function Image({params}:{params:Promise<{code:string}>}){
+  const code=cleanCode((await params).code);
   const preview=await getLinkPreview(code);
   return new ImageResponse(<div style={{width:'100%',height:'100%',display:'flex',position:'relative',overflow:'hidden',color:'white',backgroundColor:'#11172a'}}>
     {preview.imageDataUrl?<img src={preview.imageDataUrl} width="1200" height="630" alt="" style={{position:'absolute',inset:0,width:'100%',height:'100%',objectFit:'cover'}}/>:null}
