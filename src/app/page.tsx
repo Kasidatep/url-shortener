@@ -7,8 +7,8 @@ export const metadata: Metadata = {
   title: { absolute: 'MemoLink — URL Shortener & QR Code Generator' },
   description,
   alternates: { canonical: '/' },
-  openGraph: { title: 'MemoLink — Good things. Short links.', description, url: '/' },
-  twitter: { card: 'summary_large_image', title: 'MemoLink — Good things. Short links.', description },
+  openGraph: { title: 'MemoLink — A shorter link. Ready to share.', description, url: '/' },
+  twitter: { card: 'summary_large_image', title: 'MemoLink — A shorter link. Ready to share.', description },
 };
 export default function Home() {
   const schema = {
