@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { useCallback, useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useParams, useRouter } from 'next/navigation';
 import { ArrowPathIcon, ExclamationTriangleIcon, EyeIcon, EyeSlashIcon, LinkIcon, LockClosedIcon } from '@heroicons/react/24/outline';
 import PreferenceControls from '@/components/PreferenceControls';
 import MemoLinkLogo from '@/components/MemoLinkLogo';
@@ -18,7 +18,8 @@ function StateIcon({state}:{state:Exclude<LinkState,'checking'>}){
   </div>;
 }
 
-export default function ShortLinkPage({ params }: { params: { code: string } }) {
+export default function ShortLinkPage() {
+  const params = useParams<{ code: string }>();
   const router=useRouter();
   const {locale}=usePreferences();
   const text=getPageMessages(locale);
