@@ -1,10 +1,10 @@
 import type { Locale } from './i18n';
 
 const en = {
-  title: 'A shorter link. Ready to share.',
-  description: 'Paste your link below. Make it yours if you like.',
+  title: 'Shorten a link.',
+  description: 'Paste, shorten, share. That’s it.',
   create: 'Create', share: 'Share', urlHint: 'Use a complete address starting with https:// or http://.',
-  options: 'Make it yours', optional: 'Optional', autoName: 'Choose a name, or let us make one',
+  options: 'Link settings', optional: 'Optional', autoName: 'Choose a name, or let us make one',
   access: 'Password & expiration', accessHint: 'Decide how people can open your link',
   campaignHint: 'Add campaign tags or remove tracking',
   aliasHint: '3–48 letters, numbers, hyphens or underscores. Start with a letter or number.',
@@ -21,9 +21,9 @@ type Copy = { [K in keyof typeof en]: string };
 export const createMessages: Record<Locale, Copy> = {
   en,
   th: {
-    title:'ลิงก์สั้น พร้อมส่งต่อ', description:'วางลิงก์ที่อยากแชร์ แล้วให้เราย่อให้',
+    title:'ย่อลิงก์ให้สั้น แชร์ได้เลย', description:'วางลิงก์ของคุณ แล้วกดสร้างลิงก์สั้น',
     create:'สร้างลิงก์', share:'พร้อมแชร์', urlHint:'ใช้ลิงก์เต็มที่ขึ้นต้นด้วย https:// หรือ http://',
-    options:'ปรับให้เป็นของคุณ', optional:'เลือกได้ ไม่บังคับ', autoName:'ตั้งชื่อเอง หรือให้เราสร้างให้',
+    options:'ตั้งค่าลิงก์เพิ่มเติม', optional:'เลือกได้ ไม่บังคับ', autoName:'ตั้งชื่อเอง หรือให้เราสร้างให้',
     access:'รหัสผ่านและวันหมดอายุ', accessHint:'กำหนดวิธีเข้าถึงและอายุของลิงก์', campaignHint:'เพิ่มข้อมูลแคมเปญ หรือลบค่าติดตามเดิม',
     aliasHint:'ใช้ภาษาอังกฤษ ตัวเลข - หรือ _ รวม 3–48 ตัว เริ่มต้นด้วยตัวอักษรหรือตัวเลข',
     done:'ลิงก์พร้อมแล้ว', doneHint:'คัดลอกไปวางในแชต โพสต์ หรือส่งต่อได้เลย', destination:'เปิดไปยัง', another:'สร้างลิงก์ใหม่',
