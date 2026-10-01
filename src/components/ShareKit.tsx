@@ -1,7 +1,7 @@
 'use client';
 
 import Image from 'next/image';
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import { ArrowDownTrayIcon, ArrowUpOnSquareIcon, ClipboardDocumentIcon, EnvelopeIcon, PhotoIcon, XMarkIcon } from '@heroicons/react/24/outline';
 import { usePreferences } from './PreferencesProvider';
 import { useNotifications } from './NotificationTray';
@@ -18,7 +18,8 @@ const targets:Target[]=[
 ];
 
 export default function ShareKit({open,url,onClose}:{open:boolean;url:string;onClose:()=>void}){
-  const {locale}=usePreferences();
+  const {locale,t}=usePreferences();
+  const dialogRef=useRef<HTMLElement>(null);
   const copy=experienceMessages[locale];
   const {notify}=useNotifications();
   const shareText='MemoLink';
@@ -26,15 +27,25 @@ export default function ShareKit({open,url,onClose}:{open:boolean;url:string;onC
 
   useEffect(()=>{
     if(!open)return;
-    const close=(event:KeyboardEvent)=>{if(event.key==='Escape')onClose();};
+    const previousFocus=document.activeElement instanceof HTMLElement?document.activeElement:null;
+    const focusable=()=>Array.from(dialogRef.current?.querySelectorAll<HTMLElement>('button:not(:disabled), a[href], [tabindex="0"]')??[]);
+    focusable()[0]?.focus();
+    const close=(event:KeyboardEvent)=>{
+      if(event.key==='Escape'){event.preventDefault();onClose();}
+      if(event.key==='Tab'){
+        const elements=focusable();const first=elements[0];const last=elements[elements.length-1];
+        if(event.shiftKey&&document.activeElement===first){event.preventDefault();last?.focus();}
+        else if(!event.shiftKey&&document.activeElement===last){event.preventDefault();first?.focus();}
+      }
+    };
     document.addEventListener('keydown',close);
     document.body.classList.add('dialog-open');
-    return()=>{document.removeEventListener('keydown',close);document.body.classList.remove('dialog-open');};
+    return()=>{document.removeEventListener('keydown',close);document.body.classList.remove('dialog-open');previousFocus?.focus();};
   },[open,onClose]);
 
   if(!open)return null;
   function openTarget(target:Target){const popup=window.open(target.url(url,shareText),'_blank','noopener,noreferrer');if(popup)popup.opener=null;}
-  async function copyLink(){await navigator.clipboard.writeText(url);notify(copy.copied,'success');onClose();}
+  async function copyLink(){try{await navigator.clipboard.writeText(url);notify(copy.copied,'success');onClose();}catch{notify(t('clipboardFailed'),'error');}}
   async function downloadCard(blob?:Blob){
     let image:Blob;
     if(blob)image=blob;
@@ -62,7 +73,7 @@ export default function ShareKit({open,url,onClose}:{open:boolean;url:string;onC
   }
 
   return <div className="dialog-backdrop share-backdrop" role="presentation" onMouseDown={event=>{if(event.target===event.currentTarget)onClose();}}>
-    <section className="share-kit" role="dialog" aria-modal="true" aria-labelledby="share-title">
+    <section ref={dialogRef} className="share-kit" role="dialog" aria-modal="true" aria-labelledby="share-title">
       <header><div><p className="kicker">MEMOLINK SHARE KIT</p><h2 id="share-title">{copy.shareTitle}</h2><p>{copy.shareBody}</p></div><button type="button" className="share-close" onClick={onClose} aria-label={copy.close}><XMarkIcon/></button></header>
       <div className="share-platforms">{targets.map(target=><button type="button" key={target.name} onClick={()=>openTarget(target)}><span className={'share-platform-mark '+target.className}>{target.mark}</span><span>{target.name}</span></button>)}</div>
       <div className="share-utility">

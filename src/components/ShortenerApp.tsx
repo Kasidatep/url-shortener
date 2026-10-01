@@ -1,29 +1,29 @@
 'use client';
 
 import Link from 'next/link';
-import { useMemo, useState } from 'react';
-import { ClipboardDocumentIcon, QrCodeIcon, ShareIcon } from '@heroicons/react/24/outline';
+import { useCallback, useEffect, useRef, useState } from 'react';
+import { ArrowRightIcon, ArrowUpRightIcon, CheckIcon, ChevronDownIcon, ClipboardDocumentIcon, LinkIcon, LockClosedIcon, PlusIcon, QrCodeIcon, ShareIcon, AdjustmentsHorizontalIcon } from '@heroicons/react/24/outline';
 import QRCodeComponent from './QRCodeComponent';
 import ShareKit from './ShareKit';
 import AppHeader from './AppHeader';
-import LinkStory from './LinkStory';
-import LandingDetails from './LandingDetails';
 import { usePreferences } from './PreferencesProvider';
 import { getDeviceKey } from '@/lib/device';
 import { useNotifications } from './NotificationTray';
+import { createMessages } from '@/config/create-i18n';
+import './shortener.css';
 
 type Expiration = 'none' | 'clicks' | 'datetime';
+type Panel = 'name' | 'access' | 'campaign' | null;
 type Utm = { source: string; medium: string; campaign: string; term: string; content: string };
 const EMPTY_UTM: Utm = { source: '', medium: '', campaign: '', term: '', content: '' };
 const TRACKING_KEYS = ['fbclid', 'gclid', 'dclid', 'msclkid'];
 
 function prepareUrl(raw: string, clean: boolean, utm: Utm) {
-  const parsed = new URL(raw);
-  if (clean) {
-    Array.from(parsed.searchParams.keys()).forEach(key => {
-      if (key.startsWith('utm_') || TRACKING_KEYS.includes(key)) parsed.searchParams.delete(key);
-    });
-  }
+  const parsed = new URL(raw.trim());
+  if (!['http:', 'https:'].includes(parsed.protocol)) throw new Error('Invalid URL');
+  if (clean) Array.from(parsed.searchParams.keys()).forEach(key => {
+    if (key.startsWith('utm_') || TRACKING_KEYS.includes(key)) parsed.searchParams.delete(key);
+  });
   Object.entries(utm).forEach(([key, value]) => {
     if (value.trim()) parsed.searchParams.set('utm_' + key, value.trim());
   });
@@ -31,7 +31,8 @@ function prepareUrl(raw: string, clean: boolean, utm: Utm) {
 }
 
 export default function ShortenerApp() {
-  const { t } = usePreferences();
+  const { t, locale } = usePreferences();
+  const copy = createMessages[locale];
   const { notify } = useNotifications();
   const [url, setUrl] = useState('');
   const [alias, setAlias] = useState('');
@@ -39,74 +40,129 @@ export default function ShortenerApp() {
   const [expirationType, setExpirationType] = useState<Expiration>('none');
   const [maxClicks, setMaxClicks] = useState('');
   const [expirationDate, setExpirationDate] = useState('');
-  const [advanced, setAdvanced] = useState(false);
-  const [campaignOpen, setCampaignOpen] = useState(false);
-  const [cleanTracking, setCleanTracking] = useState(true);
+  const [panel, setPanel] = useState<Panel>(null);
+  const [optionsOpen, setOptionsOpen] = useState(false);
+  const [cleanTracking, setCleanTracking] = useState(false);
   const [utm, setUtm] = useState<Utm>(EMPTY_UTM);
-  const [shortUrl, setShortUrl] = useState('');
+  const [result, setResult] = useState<{ shortUrl: string; destination: string } | null>(null);
   const [showQr, setShowQr] = useState(false);
   const [shareOpen, setShareOpen] = useState(false);
-  const [status, setStatus] = useState<'idle' | 'loading' | 'copied'>('idle');
+  const [loading, setLoading] = useState(false);
+  const [copied, setCopied] = useState(false);
   const [error, setError] = useState('');
+  const [errorField, setErrorField] = useState('');
+  const closeShare = useCallback(() => setShareOpen(false), []);
+  const urlRef = useRef<HTMLInputElement>(null);
+  const resultRef = useRef<HTMLHeadingElement>(null);
+  const requestPending = useRef(false);
+  const copyTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const hasOptions = !!(alias || password || expirationType !== 'none' || cleanTracking || Object.values(utm).some(value => value.trim()));
+  const accessSet = !!password || expirationType !== 'none';
+  const campaignSet = cleanTracking || Object.values(utm).some(value => value.trim());
 
-  const aliasPreview = useMemo(() => alias ? 'short.kasidate.me/' + alias : t('customName'), [alias, t]);
+  useEffect(() => { if (error && errorField) document.getElementById(errorField)?.focus(); }, [error, errorField, panel]);
+  useEffect(() => { if (result) resultRef.current?.focus(); }, [result]);
+  useEffect(() => () => { if (copyTimer.current) clearTimeout(copyTimer.current); }, []);
 
+  function resetOptions() {
+    setAlias(''); setPassword(''); setExpirationType('none'); setMaxClicks(''); setExpirationDate('');
+    setCleanTracking(false); setUtm(EMPTY_UTM); setPanel(null); setOptionsOpen(false); setError('');
+  }
+  function another() {
+    resetOptions(); setUrl(''); setResult(null); setShowQr(false); setShareOpen(false); setCopied(false);
+    if (copyTimer.current) clearTimeout(copyTimer.current);
+    requestAnimationFrame(() => urlRef.current?.focus());
+  }
   async function submit(event: React.FormEvent) {
-    event.preventDefault(); setError(''); setStatus('loading');
+    event.preventDefault();
+    if (requestPending.current) return;
+    setError(''); setErrorField('');
+    let finalUrl: string;
+    try { finalUrl = prepareUrl(url, cleanTracking, utm); }
+    catch { setErrorField('url'); setError(copy.invalidUrl); urlRef.current?.focus(); return; }
+    if (alias && !/^[a-zA-Z0-9][a-zA-Z0-9_-]{2,47}$/.test(alias)) {
+      setOptionsOpen(true); setPanel('name'); setErrorField('alias'); setError(copy.invalidAlias); return;
+    }
+    if (expirationType === 'clicks' && (!Number.isInteger(Number(maxClicks)) || Number(maxClicks) < 1 || Number(maxClicks) > 1000000)) {
+      setOptionsOpen(true); setPanel('access'); setErrorField('clicks'); setError(copy.invalidClicks); return;
+    }
+    if (expirationType === 'datetime' && (!expirationDate || !Number.isFinite(new Date(expirationDate).getTime()) || new Date(expirationDate).getTime() <= Date.now())) {
+      setOptionsOpen(true); setPanel('access'); setErrorField('date'); setError(copy.invalidDate); return;
+    }
+    requestPending.current = true; setLoading(true);
     try {
-      const finalUrl = prepareUrl(url, cleanTracking, utm);
       const response = await fetch('/api/shorten', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'x-device-key': getDeviceKey() },
+        method: 'POST', headers: { 'Content-Type': 'application/json', 'x-device-key': getDeviceKey() },
         body: JSON.stringify({ url: finalUrl, customShortId: alias, password, expirationType, maxClicks, expirationDate }),
       });
+      if (response.status === 409) { setOptionsOpen(true); setPanel('name'); setErrorField('alias'); throw new Error(copy.aliasTaken); }
+      if (response.status === 429) throw new Error(copy.rateLimit);
+      if (!response.ok) throw new Error(t('createFailed'));
       const data = await response.json();
-      if (!response.ok) throw new Error(data.message || t('createFailed'));
-      setShortUrl(window.location.origin + '/' + data.shortUrl); setShowQr(false); notify(t('ready'), 'success');
-    } catch (reason) { const message = reason instanceof Error ? reason.message : t('createFailed'); setError(message); notify(message, 'error'); }
-    finally { setStatus('idle'); }
+      if (typeof data.shortUrl !== 'string' || !/^[a-zA-Z0-9_-]{3,48}$/.test(data.shortUrl)) throw new Error(t('createFailed'));
+      setResult({ shortUrl: window.location.origin + '/' + data.shortUrl, destination: finalUrl });
+      setPassword(''); setShowQr(false); setCopied(false);
+    } catch (reason) { setError(reason instanceof Error ? reason.message : t('createFailed')); }
+    finally { requestPending.current = false; setLoading(false); }
   }
-
   async function paste() {
-    try { setUrl(await navigator.clipboard.readText()); } catch { notify(t('clipboardFailed'), 'error'); }
+    try { setUrl((await navigator.clipboard.readText()).trim()); setError(''); urlRef.current?.focus(); }
+    catch { notify(t('clipboardFailed'), 'error'); urlRef.current?.focus(); }
   }
-  async function copy() { try { await navigator.clipboard.writeText(shortUrl); setStatus('copied'); notify(t('copied'), 'success'); window.setTimeout(() => setStatus('idle'), 1600); } catch { notify(t('clipboardFailed'), 'error'); } }
-  function changeUtm(key: keyof Utm, value: string) { setUtm(current => ({ ...current, [key]: value })); }
+  async function copyLink() {
+    if (!result) return;
+    try {
+      await navigator.clipboard.writeText(result.shortUrl); setCopied(true);
+      if (copyTimer.current) clearTimeout(copyTimer.current);
+      copyTimer.current = setTimeout(() => setCopied(false), 2000);
+    } catch { notify(t('clipboardFailed'), 'error'); }
+  }
+  function toggle(value: Panel) { setPanel(current => current === value ? null : value); }
 
-  return <main>
+  return <main className="create-page">
     <AppHeader active="home"/>
-    <section className="hero editorial-hero">
-      <div className="hero-intro"><p className="kicker">{t('eyebrow')}</p><h1>{t('heroA')} <span>{t('heroB')}</span></h1><p>{t('heroDescription')}</p><a href="#create-link" className="hero-jump">{t('shorten')} <span aria-hidden="true">↘</span></a></div>
-      <LinkStory/>
-      <div className="composer-wrap" id="create-link">
-      <form className="shortener-card" onSubmit={submit}>
-        <label htmlFor="url">{t('pasteLongLink')}</label>
-        <div className="url-row"><input id="url" type="url" inputMode="url" autoComplete="url" placeholder="https://example.com/very-long-link" value={url} onChange={event => setUrl(event.target.value)} required /><button type="button" className="ghost-button" onClick={paste}>{t('paste')}</button></div>
-        <div className="option-toggles">
-          <button type="button" className="advanced-toggle" aria-expanded={advanced} onClick={() => setAdvanced(value => !value)}>{advanced ? t('hideOptions') : t('addOptions')}</button>
-          <button type="button" className="advanced-toggle" aria-expanded={campaignOpen} onClick={() => setCampaignOpen(value => !value)}>+ {t('campaignTools')}</button>
-        </div>
-
-        {advanced ? <div className="advanced-grid">
-          <div className="field"><label htmlFor="alias">{t('customName')}</label><input id="alias" placeholder="my-campaign" value={alias} maxLength={48} onChange={event => setAlias(event.target.value)} /><small>{aliasPreview}</small></div>
-          <div className="field"><label htmlFor="password">{t('password')} <span>{t('optional')}</span></label><input id="password" type="password" autoComplete="new-password" placeholder={t('protectLink')} value={password} maxLength={128} onChange={event => setPassword(event.target.value)} /></div>
-          <fieldset className="field full"><legend>{t('expiration')}</legend><div className="segments">{(['none', 'clicks', 'datetime'] as Expiration[]).map(value => <button key={value} type="button" aria-pressed={expirationType === value} onClick={() => setExpirationType(value)}>{value === 'none' ? t('never') : value === 'clicks' ? t('afterClicks') : t('dateTime')}</button>)}</div></fieldset>
-          {expirationType === 'clicks' ? <div className="field full"><label htmlFor="clicks">{t('maximumClicks')}</label><input id="clicks" type="number" min="1" max="1000000" value={maxClicks} onChange={event => setMaxClicks(event.target.value)} required /></div> : null}
-          {expirationType === 'datetime' ? <div className="field full"><label htmlFor="date">{t('expiresOn')}</label><input id="date" type="datetime-local" value={expirationDate} onChange={event => setExpirationDate(event.target.value)} required /><small>{t('timezone')}</small></div> : null}
-        </div> : null}
-
-        {campaignOpen ? <fieldset className="campaign-panel"><legend>{t('campaignTools')}</legend><label className="check-row"><input type="checkbox" checked={cleanTracking} onChange={event => setCleanTracking(event.target.checked)} />{t('removeTracking')}</label><div className="utm-grid">{(Object.keys(EMPTY_UTM) as Array<keyof Utm>).map(key => <div className="field" key={key}><label htmlFor={'utm-' + key}>{t(key)}</label><input id={'utm-' + key} value={utm[key]} onChange={event => changeUtm(key, event.target.value)} placeholder={key === 'source' ? 'newsletter' : key === 'medium' ? 'email' : ''} /></div>)}</div></fieldset> : null}
-
-        {error ? <p className="form-error" role="alert">{error}</p> : null}
-        <button className="primary-button" type="submit" disabled={status === 'loading'}>{status === 'loading' ? t('loading') : t('shorten')}</button>
-        <p className="trust-line">{t('trust')}</p>
-      </form>
-
-      {shortUrl ? <section className="result-card" aria-live="polite"><div><span className="success-dot">✓</span><div><small>{t('ready')}</small><a href={shortUrl} target="_blank" rel="noreferrer">{shortUrl}</a></div></div><div className="result-actions"><button type="button" onClick={copy}><ClipboardDocumentIcon />{status === 'copied' ? t('copied') : t('copy')}</button><button type="button" onClick={() => setShareOpen(true)}><ShareIcon />{t('share')}</button><button type="button" onClick={() => setShowQr(value => !value)}><QrCodeIcon />{t('qr')}</button></div>{showQr ? <QRCodeComponent shortUrl={shortUrl} /> : null}<Link href="/manage" className="manage-link">{t('manage')}</Link></section> : null}
+    <section className="create-workspace" aria-labelledby="create-title">
+      <header className="create-intro"><span className="create-label">URL SHORTENER</span><h1 id="create-title">{copy.title}</h1><p>{copy.description}</p></header>
+      <div className="create-surface">
+        <ol className="create-progress" aria-label="MemoLink"><li aria-current={!result ? 'step' : undefined}><span>{result ? <CheckIcon aria-hidden="true"/> : '1'}</span>{copy.create}</li><li aria-current={result ? 'step' : undefined}><span>2</span>{copy.share}</li></ol>
+        {!result ? <form onSubmit={submit} noValidate className="link-composer" aria-busy={loading}>
+          <fieldset disabled={loading} className="composer-fields">
+            <label className="destination-label" htmlFor="url">{t('pasteLongLink')}</label>
+            <div className="destination-input"><LinkIcon aria-hidden="true"/><input ref={urlRef} id="url" name="url" type="url" inputMode="url" autoComplete="url" autoCapitalize="none" spellCheck={false} placeholder="https://example.com/your-link" value={url} onChange={event => { setUrl(event.target.value); setError(''); }} aria-invalid={!!error && errorField==='url'} aria-describedby={error && errorField==='url' ? 'url-hint create-error' : 'url-hint'} required/><button type="button" onClick={paste}>{t('paste')}</button></div>
+            <p id="url-hint" className="composer-hint">{copy.urlHint}</p>
+            <div className="options-heading"><button type="button" aria-expanded={optionsOpen} aria-controls="composer-options" onClick={()=>setOptionsOpen(value=>!value)}>{copy.options}<small>{copy.optional}</small>{hasOptions ? <CheckIcon aria-hidden="true"/> : null}<ChevronDownIcon aria-hidden="true"/></button>{hasOptions ? <button type="button" onClick={resetOptions}>{copy.reset}</button> : null}</div>
+            {optionsOpen ? <div className="composer-options" id="composer-options">
+              <div className="composer-option">
+                <button type="button" className="option-heading" aria-expanded={panel==='name'} aria-controls="name-panel" onClick={()=>toggle('name')}><LinkIcon aria-hidden="true"/><span><strong>{t('customName')}</strong><small>{alias ? '/' + alias : copy.autoName}</small></span>{alias ? <i className="option-set"><CheckIcon aria-hidden="true"/></i> : null}<ChevronDownIcon aria-hidden="true"/></button>
+                {panel==='name' ? <div id="name-panel" className="option-content"><label htmlFor="alias">{t('customName')}</label><div className="alias-input"><span aria-hidden="true">/</span><input id="alias" aria-invalid={!!error && errorField==='alias'} value={alias} onChange={event=>setAlias(event.target.value)} maxLength={48} autoCapitalize="none" spellCheck={false} placeholder="my-next-idea" aria-describedby={error && errorField==='alias' ? 'alias-hint create-error' : 'alias-hint'}/></div><p id="alias-hint" className="composer-hint">{copy.aliasHint}</p></div> : null}
+              </div>
+              <div className="composer-option">
+                <button type="button" className="option-heading" aria-expanded={panel==='access'} aria-controls="access-panel" onClick={()=>toggle('access')}><LockClosedIcon aria-hidden="true"/><span><strong>{copy.access}</strong><small>{accessSet ? [password ? t('password') : '', expirationType==='clicks' ? t('afterClicks') : expirationType==='datetime' ? t('dateTime') : ''].filter(Boolean).join(' · ') : copy.accessHint}</small></span>{accessSet ? <i className="option-set"><CheckIcon aria-hidden="true"/></i> : null}<ChevronDownIcon aria-hidden="true"/></button>
+                {panel==='access' ? <div id="access-panel" className="option-content"><label htmlFor="password">{t('password')} <small>{t('optional')}</small></label><input id="password" type="password" autoComplete="new-password" value={password} onChange={event=>setPassword(event.target.value)} maxLength={128} placeholder={t('protectLink')}/><label htmlFor="expiration">{t('expiration')}</label><select id="expiration" value={expirationType} onChange={event=>setExpirationType(event.target.value as Expiration)}><option value="none">{t('never')}</option><option value="clicks">{t('afterClicks')}</option><option value="datetime">{t('dateTime')}</option></select>{expirationType==='clicks' ? <><label htmlFor="clicks">{t('maximumClicks')}</label><input id="clicks" aria-invalid={!!error && errorField==='clicks'} aria-describedby={error && errorField==='clicks' ? 'create-error' : undefined} type="number" inputMode="numeric" min="1" max="1000000" value={maxClicks} onChange={event=>setMaxClicks(event.target.value)}/></> : null}{expirationType==='datetime' ? <><label htmlFor="date">{t('expiresOn')}</label><input id="date" aria-invalid={!!error && errorField==='date'} aria-describedby={error && errorField==='date' ? 'create-error' : undefined} type="datetime-local" value={expirationDate} onChange={event=>setExpirationDate(event.target.value)}/><p className="composer-hint">{t('timezone')}</p></> : null}</div> : null}
+              </div>
+              <div className="composer-option">
+                <button type="button" className="option-heading" aria-expanded={panel==='campaign'} aria-controls="campaign-panel" onClick={()=>toggle('campaign')}><AdjustmentsHorizontalIcon aria-hidden="true"/><span><strong>{t('campaignTools')}</strong><small>{campaignSet ? [cleanTracking ? t('removeTracking') : '', ...Object.entries(utm).filter(([,value])=>value.trim()).map(([key])=>'utm_'+key)].filter(Boolean).join(' · ') : copy.campaignHint}</small></span>{campaignSet ? <i className="option-set"><CheckIcon aria-hidden="true"/></i> : null}<ChevronDownIcon aria-hidden="true"/></button>
+                {panel==='campaign' ? <div id="campaign-panel" className="option-content"><label className="tracking-choice"><input type="checkbox" checked={cleanTracking} onChange={event=>setCleanTracking(event.target.checked)}/><span>{t('removeTracking')}</span></label><div className="campaign-fields">{(Object.keys(EMPTY_UTM) as Array<keyof Utm>).map(key=><div key={key}><label htmlFor={'utm-'+key}>{t(key)}</label><input id={'utm-'+key} value={utm[key]} onChange={event=>setUtm(current=>({...current,[key]:event.target.value}))} placeholder={key==='source' ? 'newsletter' : key==='medium' ? 'email' : key==='campaign' ? 'summer-launch' : ''}/></div>)}</div></div> : null}
+              </div>
+            </div>
+            : null}
+            {error ? <p id="create-error" className="composer-error" role="alert">{error}</p> : null}
+            <button className="create-submit" type="submit" disabled={loading}>{loading ? <><i className="create-spinner" aria-hidden="true"/>{t('loading')}</> : <>{t('shorten')}<ArrowRightIcon aria-hidden="true"/></>}</button>
+          </fieldset>
+          <p className="create-assurance"><LockClosedIcon aria-hidden="true"/>{copy.noAccount}</p>
+        </form> : <section className="creation-result" aria-labelledby="result-title">
+          <div className="result-success" aria-hidden="true"><CheckIcon/></div><h2 ref={resultRef} tabIndex={-1} id="result-title">{copy.done}</h2><p>{copy.doneHint}</p>
+          <a className="created-url" href={result.shortUrl} target="_blank" rel="noreferrer">{result.shortUrl.replace(/^https?:\/\//,'')}<ArrowUpRightIcon aria-hidden="true"/></a>
+          <div className="result-destination"><span>{copy.destination}</span><p title={result.destination}>{result.destination}</p></div>
+          <button className="create-submit" type="button" onClick={copyLink}>{copied ? <CheckIcon aria-hidden="true"/> : <ClipboardDocumentIcon aria-hidden="true"/>}<span aria-live="polite">{copied ? t('copied') : t('copy')}</span></button>
+          <div className="created-actions"><button type="button" onClick={()=>setShareOpen(true)}><ShareIcon aria-hidden="true"/>{t('share')}</button><button type="button" aria-expanded={showQr} aria-controls="created-qr" onClick={()=>setShowQr(value=>!value)}><QrCodeIcon aria-hidden="true"/>{t('qr')}</button></div>
+          {showQr ? <div id="created-qr"><QRCodeComponent shortUrl={result.shortUrl}/></div> : null}
+          <p className="recovery-reminder">{copy.recovery} <Link href="/manage">{t('myLinks')}<ArrowUpRightIcon aria-hidden="true"/></Link></p>
+          <button className="create-another" type="button" onClick={another}><PlusIcon aria-hidden="true"/>{copy.another}</button>
+        </section>}
       </div>
-      <ShareKit open={shareOpen} url={shortUrl} onClose={() => setShareOpen(false)}/>
+      <div className="create-help"><span>MemoLink</span><Link href="/faq">{copy.help}<ArrowUpRightIcon aria-hidden="true"/></Link></div>
     </section>
-
-    <LandingDetails/>
+    {result ? <ShareKit open={shareOpen} url={result.shortUrl} onClose={closeShare}/> : null}
   </main>;
 }
