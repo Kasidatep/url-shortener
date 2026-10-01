@@ -11,6 +11,9 @@ import { getDeviceKey } from '@/lib/device';
 import { useNotifications } from './NotificationTray';
 import { createMessages } from '@/config/create-i18n';
 import './shortener.css';
+import AdvancedLinkSettings from './AdvancedLinkSettings';
+import {normalizeUrlInput} from '@/lib/url-input';
+import {utilityMessages} from '@/config/utility-i18n';
 
 type Expiration = 'none' | 'clicks' | 'datetime';
 type Panel = 'name' | 'access' | 'campaign' | null;
@@ -19,7 +22,7 @@ const EMPTY_UTM: Utm = { source: '', medium: '', campaign: '', term: '', content
 const TRACKING_KEYS = ['fbclid', 'gclid', 'dclid', 'msclkid'];
 
 function prepareUrl(raw: string, clean: boolean, utm: Utm) {
-  const parsed = new URL(raw.trim());
+  const parsed = new URL(normalizeUrlInput(raw));
   if (!['http:', 'https:'].includes(parsed.protocol)) throw new Error('Invalid URL');
   if (clean) Array.from(parsed.searchParams.keys()).forEach(key => {
     if (key.startsWith('utm_') || TRACKING_KEYS.includes(key)) parsed.searchParams.delete(key);
@@ -57,8 +60,8 @@ export default function ShortenerApp() {
   const requestPending = useRef(false);
   const copyTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const hasOptions = !!(alias || password || expirationType !== 'none' || cleanTracking || Object.values(utm).some(value => value.trim()));
-  const accessSet = !!password || expirationType !== 'none';
-  const campaignSet = cleanTracking || Object.values(utm).some(value => value.trim());
+  const utility=utilityMessages[locale];
+  let validUrl=false; try { normalizeUrlInput(url); validUrl=true; } catch {}
 
   useEffect(() => { if (error && errorField) document.getElementById(errorField)?.focus(); }, [error, errorField, panel]);
   useEffect(() => { if (result) resultRef.current?.focus(); }, [result]);
@@ -102,7 +105,7 @@ export default function ShortenerApp() {
       if (typeof data.shortUrl !== 'string' || !/^[a-zA-Z0-9_-]{3,48}$/.test(data.shortUrl)) throw new Error(t('createFailed'));
       setResult({ shortUrl: window.location.origin + '/' + data.shortUrl, destination: finalUrl });
       setPassword(''); setShowQr(false); setCopied(false);
-    } catch (reason) { setError(reason instanceof Error ? reason.message : t('createFailed')); }
+    } catch (reason) { setError(reason instanceof Error && [copy.aliasTaken,copy.rateLimit,t('createFailed')].includes(reason.message) ? reason.message : t('createFailed')); }
     finally { requestPending.current = false; setLoading(false); }
   }
   async function paste() {
@@ -120,32 +123,18 @@ export default function ShortenerApp() {
 
   return <main className="create-page">
     <AppHeader active="home"/>
-    <section className="create-workspace" aria-labelledby="create-title">
+    <section id="main-content" tabIndex={-1} className="create-workspace" aria-labelledby="create-title">
       <header className="create-intro"><h1 id="create-title">{copy.title}</h1>{!result ? <p>{copy.description}</p> : null}</header>
       <div className="create-surface">
         {!result ? <form onSubmit={submit} noValidate className="link-composer" aria-busy={loading}>
           <fieldset disabled={loading} className="composer-fields">
             <label className="destination-label" htmlFor="url">{t('pasteLongLink')}</label>
-            <div className="destination-input"><LinkIcon aria-hidden="true"/><input ref={urlRef} id="url" name="url" type="url" inputMode="url" autoComplete="url" autoCapitalize="none" spellCheck={false} placeholder="https://example.com/your-link" value={url} onChange={event => { setUrl(event.target.value); setError(''); }} aria-invalid={!!error && errorField==='url'} aria-describedby={error && errorField==='url' ? 'url-hint create-error' : 'url-hint'} required/><button type="button" onClick={paste}>{t('paste')}</button></div>
-            <p id="url-hint" className="composer-hint">{copy.urlHint}</p>
+            <div className={"destination-input"+(errorField==='url' && error ? ' invalid' : validUrl ? ' valid' : '')}><LinkIcon aria-hidden="true"/><input ref={urlRef} id="url" name="url" type="url" inputMode="url" autoComplete="url" autoCapitalize="none" spellCheck={false} placeholder="example.com/your-link" value={url} onChange={event => { setUrl(event.target.value); setError(''); }} aria-invalid={!!error && errorField==='url'} aria-describedby={error && errorField==='url' ? 'create-error' : undefined} required/><button type="button" onClick={paste}>{t('paste')}</button></div>
+            {validUrl && !error ? <p className="field-success" role="status"><CheckIcon aria-hidden="true"/>{utility.valid}</p> : null}
             {error ? <p id="create-error" className="composer-error" role="alert">{error}</p> : null}
             <button className="create-submit" type="submit" disabled={loading}>{loading ? <><i className="create-spinner" aria-hidden="true"/>{t('loading')}</> : <>{t('shorten')}<ArrowRightIcon aria-hidden="true"/></>}</button>
             <div className="options-heading"><button type="button" aria-expanded={optionsOpen} aria-controls="composer-options" onClick={()=>setOptionsOpen(value=>!value)}>{copy.options}<small>{copy.optional}</small>{hasOptions ? <CheckIcon aria-hidden="true"/> : null}<ChevronDownIcon aria-hidden="true"/></button>{hasOptions ? <button type="button" onClick={resetOptions}>{copy.reset}</button> : null}</div>
-            {optionsOpen ? <div className="composer-options" id="composer-options">
-              <div className="composer-option">
-                <h3 className="option-section-title">{t('customName')}</h3>
-                {optionsOpen ? <div id="name-panel" className="option-content"><label htmlFor="alias">{t('customName')}</label><div className="alias-input"><span aria-hidden="true">/</span><input id="alias" aria-invalid={!!error && errorField==='alias'} value={alias} onChange={event=>setAlias(event.target.value)} maxLength={48} autoCapitalize="none" spellCheck={false} placeholder="my-next-idea" aria-describedby={error && errorField==='alias' ? 'alias-hint create-error' : 'alias-hint'}/></div><p id="alias-hint" className="composer-hint">{copy.aliasHint}</p></div> : null}
-              </div>
-              <div className="composer-option">
-                <h3 className="option-section-title">{copy.access}</h3>
-                {optionsOpen ? <div id="access-panel" className="option-content"><label htmlFor="password">{t('password')} <small>{t('optional')}</small></label><input id="password" type="password" autoComplete="new-password" value={password} onChange={event=>setPassword(event.target.value)} maxLength={128} placeholder={t('protectLink')}/><label htmlFor="expiration">{t('expiration')}</label><select id="expiration" value={expirationType} onChange={event=>setExpirationType(event.target.value as Expiration)}><option value="none">{t('never')}</option><option value="clicks">{t('afterClicks')}</option><option value="datetime">{t('dateTime')}</option></select>{expirationType==='clicks' ? <><label htmlFor="clicks">{t('maximumClicks')}</label><input id="clicks" aria-invalid={!!error && errorField==='clicks'} aria-describedby={error && errorField==='clicks' ? 'create-error' : undefined} type="number" inputMode="numeric" min="1" max="1000000" value={maxClicks} onChange={event=>setMaxClicks(event.target.value)}/></> : null}{expirationType==='datetime' ? <><label htmlFor="date">{t('expiresOn')}</label><input id="date" aria-invalid={!!error && errorField==='date'} aria-describedby={error && errorField==='date' ? 'create-error' : undefined} type="datetime-local" value={expirationDate} onChange={event=>setExpirationDate(event.target.value)}/><p className="composer-hint">{t('timezone')}</p></> : null}</div> : null}
-              </div>
-              <div className="composer-option">
-                <h3 className="option-section-title">{t('campaignTools')}</h3>
-                {optionsOpen ? <div id="campaign-panel" className="option-content"><label className="tracking-choice"><input type="checkbox" checked={cleanTracking} onChange={event=>setCleanTracking(event.target.checked)}/><span>{t('removeTracking')}</span></label><div className="campaign-fields">{(Object.keys(EMPTY_UTM) as Array<keyof Utm>).map(key=><div key={key}><label htmlFor={'utm-'+key}>{t(key)}</label><input id={'utm-'+key} value={utm[key]} onChange={event=>setUtm(current=>({...current,[key]:event.target.value}))} placeholder={key==='source' ? 'newsletter' : key==='medium' ? 'email' : key==='campaign' ? 'summer-launch' : ''}/></div>)}</div></div> : null}
-              </div>
-            </div>
-            : null}
+            {optionsOpen ? <AdvancedLinkSettings alias={alias} setAlias={setAlias} password={password} setPassword={setPassword} expirationType={expirationType} setExpirationType={setExpirationType} maxClicks={maxClicks} setMaxClicks={setMaxClicks} expirationDate={expirationDate} setExpirationDate={setExpirationDate} cleanTracking={cleanTracking} setCleanTracking={setCleanTracking} utm={utm} setUtm={setUtm} error={error} errorField={errorField}/> : null}
 
           </fieldset>
           <p className="create-assurance"><LockClosedIcon aria-hidden="true"/>{copy.noAccount}</p>

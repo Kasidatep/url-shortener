@@ -6,9 +6,10 @@ import AppFooter from '@/components/AppFooter';
 import { NotificationProvider } from '@/components/NotificationTray';
 import './globals.css';
 import './experience.css';
+import './utility.css';
 
 const inter=Inter({subsets:['latin'],display:'swap',variable:'--font-inter'});
 const notoThai=Noto_Sans_Thai({subsets:['thai'],display:'swap',variable:'--font-thai'});
 export const metadata:Metadata={metadataBase:new URL(env.app.url),title:{default:'MemoLink — Good things. Short links.',template:'%s | MemoLink'},description:'Create secure short links, QR codes and privacy-friendly analytics without an account.',applicationName:'MemoLink',keywords:['URL shortener','short link','QR code generator','expiring link','privacy-friendly link analytics'],openGraph:{type:'website',siteName:'MemoLink',title:'Good things. Short links.',description:'Shorten, protect, measure and manage links without an account.',url:'/'},twitter:{card:'summary_large_image',title:'MemoLink',description:'Simple, secure short links with privacy-friendly analytics.'},icons:{icon:'/icon.svg'}};
 export const viewport:Viewport={width:'device-width',initialScale:1,themeColor:[{media:'(prefers-color-scheme: light)',color:'#f8f7f3'},{media:'(prefers-color-scheme: dark)',color:'#141711'}],colorScheme:'light dark'};
-export default function RootLayout({children}:Readonly<{children:React.ReactNode}>){return <html lang="en" data-theme="light" className={`${inter.variable} ${notoThai.variable}`} suppressHydrationWarning><body><PreferencesProvider><NotificationProvider>{children}<AppFooter/></NotificationProvider></PreferencesProvider></body></html>;}
+export default function RootLayout({children}:Readonly<{children:React.ReactNode}>){return <html lang="en" data-theme="dark" className={`${inter.variable} ${notoThai.variable}`} suppressHydrationWarning><body><PreferencesProvider><NotificationProvider>{children}<AppFooter/></NotificationProvider></PreferencesProvider></body></html>;}

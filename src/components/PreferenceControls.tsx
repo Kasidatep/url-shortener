@@ -26,7 +26,16 @@ export default function PreferenceControls(){
   useEffect(()=>{
     if(!open)return;
     const closeOutside=(event:PointerEvent)=>{if(!rootRef.current?.contains(event.target as Node))setOpen(null);};
-    const closeEscape=(event:KeyboardEvent)=>{if(event.key==='Escape')setOpen(null);};
+    const menu=rootRef.current?.querySelector<HTMLElement>('[role="menu"]');
+    const previous=document.activeElement as HTMLElement|null;
+    menu?.querySelector<HTMLElement>('[aria-checked="true"]')?.focus();
+    const closeEscape=(event:KeyboardEvent)=>{
+      if(event.key==='Escape'){setOpen(null);previous?.focus();}
+      const items=Array.from(menu?.querySelectorAll<HTMLElement>('[role="menuitemradio"]')??[]);
+      const index=items.indexOf(document.activeElement as HTMLElement);
+      if(['ArrowDown','ArrowUp','Home','End'].includes(event.key)){event.preventDefault();items[event.key==='Home'?0:event.key==='End'?items.length-1:(index+(event.key==='ArrowDown'?1:-1)+items.length)%items.length]?.focus();}
+      if(event.key==='Tab')setOpen(null);
+    };
     document.addEventListener('pointerdown',closeOutside);
     document.addEventListener('keydown',closeEscape);
     return()=>{document.removeEventListener('pointerdown',closeOutside);document.removeEventListener('keydown',closeEscape);};

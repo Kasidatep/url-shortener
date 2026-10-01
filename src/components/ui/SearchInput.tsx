@@ -1,0 +1,2 @@
+import {MagnifyingGlassIcon,XMarkIcon} from '@heroicons/react/24/outline';
+export default function SearchInput({value,onChange,label,clearLabel}:{value:string;onChange:(value:string)=>void;label:string;clearLabel:string}){return <div className="ui-search" role="search"><MagnifyingGlassIcon aria-hidden="true"/><input type="search" aria-label={label} placeholder={label} value={value} onChange={e=>onChange(e.target.value)}/>{value&&<button type="button" aria-label={clearLabel} onClick={()=>onChange('')}><XMarkIcon aria-hidden="true"/></button>}</div>;}
