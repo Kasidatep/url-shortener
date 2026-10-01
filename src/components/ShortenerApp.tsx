@@ -5,12 +5,11 @@ import { useMemo, useState } from 'react';
 import { ClipboardDocumentIcon, QrCodeIcon, ShareIcon } from '@heroicons/react/24/outline';
 import QRCodeComponent from './QRCodeComponent';
 import ShareKit from './ShareKit';
-import PreferenceControls from './PreferenceControls';
+import AppHeader from './AppHeader';
+import LinkStory from './LinkStory';
+import LandingDetails from './LandingDetails';
 import { usePreferences } from './PreferencesProvider';
 import { getDeviceKey } from '@/lib/device';
-import { getPageMessages } from '@/config/page-i18n';
-import { experienceMessages } from '@/config/experience-i18n';
-import MemoLinkLogo from './MemoLinkLogo';
 import { useNotifications } from './NotificationTray';
 
 type Expiration = 'none' | 'clicks' | 'datetime';
@@ -32,10 +31,8 @@ function prepareUrl(raw: string, clean: boolean, utm: Utm) {
 }
 
 export default function ShortenerApp() {
-  const { t, locale } = usePreferences();
+  const { t } = usePreferences();
   const { notify } = useNotifications();
-  const pageText = getPageMessages(locale);
-  const experience = experienceMessages[locale];
   const [url, setUrl] = useState('');
   const [alias, setAlias] = useState('');
   const [password, setPassword] = useState('');
@@ -64,28 +61,24 @@ export default function ShortenerApp() {
         body: JSON.stringify({ url: finalUrl, customShortId: alias, password, expirationType, maxClicks, expirationDate }),
       });
       const data = await response.json();
-      if (!response.ok) throw new Error(data.message || 'Unable to create link');
+      if (!response.ok) throw new Error(data.message || t('createFailed'));
       setShortUrl(window.location.origin + '/' + data.shortUrl); setShowQr(false); notify(t('ready'), 'success');
-    } catch (reason) { const message = reason instanceof Error ? reason.message : 'Something went wrong'; setError(message); notify(message, 'error'); }
+    } catch (reason) { const message = reason instanceof Error ? reason.message : t('createFailed'); setError(message); notify(message, 'error'); }
     finally { setStatus('idle'); }
   }
 
   async function paste() {
-    try { setUrl(await navigator.clipboard.readText()); } catch { notify('Clipboard access was not available', 'error'); }
+    try { setUrl(await navigator.clipboard.readText()); } catch { notify(t('clipboardFailed'), 'error'); }
   }
-  async function copy() { await navigator.clipboard.writeText(shortUrl); setStatus('copied'); notify(t('copied'), 'success'); window.setTimeout(() => setStatus('idle'), 1600); }
+  async function copy() { try { await navigator.clipboard.writeText(shortUrl); setStatus('copied'); notify(t('copied'), 'success'); window.setTimeout(() => setStatus('idle'), 1600); } catch { notify(t('clipboardFailed'), 'error'); } }
   function changeUtm(key: keyof Utm, value: string) { setUtm(current => ({ ...current, [key]: value })); }
 
   return <main>
-    <nav className="nav">
-      <MemoLinkLogo/>
-      <div className="nav-actions"><Link href="/faq" className="nav-link nav-link-quiet">{pageText.navFaq}</Link><PreferenceControls /><Link href="/manage" className="nav-link">{t('myLinks')}</Link></div>
-    </nav>
-
-    <section className="hero">
-      <h1>{t('heroA')} <span>{t('heroB')}</span></h1>
-      <p>{t('heroDescription')}</p>
-
+    <AppHeader active="home"/>
+    <section className="hero editorial-hero">
+      <div className="hero-intro"><p className="kicker">{t('eyebrow')}</p><h1>{t('heroA')} <span>{t('heroB')}</span></h1><p>{t('heroDescription')}</p><a href="#create-link" className="hero-jump">{t('shorten')} <span aria-hidden="true">↘</span></a></div>
+      <LinkStory/>
+      <div className="composer-wrap" id="create-link">
       <form className="shortener-card" onSubmit={submit}>
         <label htmlFor="url">{t('pasteLongLink')}</label>
         <div className="url-row"><input id="url" type="url" inputMode="url" autoComplete="url" placeholder="https://example.com/very-long-link" value={url} onChange={event => setUrl(event.target.value)} required /><button type="button" className="ghost-button" onClick={paste}>{t('paste')}</button></div>
@@ -110,9 +103,10 @@ export default function ShortenerApp() {
       </form>
 
       {shortUrl ? <section className="result-card" aria-live="polite"><div><span className="success-dot">✓</span><div><small>{t('ready')}</small><a href={shortUrl} target="_blank" rel="noreferrer">{shortUrl}</a></div></div><div className="result-actions"><button type="button" onClick={copy}><ClipboardDocumentIcon />{status === 'copied' ? t('copied') : t('copy')}</button><button type="button" onClick={() => setShareOpen(true)}><ShareIcon />{t('share')}</button><button type="button" onClick={() => setShowQr(value => !value)}><QrCodeIcon />{t('qr')}</button></div>{showQr ? <QRCodeComponent shortUrl={shortUrl} /> : null}<Link href="/manage" className="manage-link">{t('manage')}</Link></section> : null}
+      </div>
       <ShareKit open={shareOpen} url={shortUrl} onClose={() => setShareOpen(false)}/>
     </section>
 
-    <section className="features" aria-labelledby="features-title"><div><p className="kicker">{t('featuresKicker')}</p><h2 id="features-title">{t('featuresTitle')}</h2></div><div className="feature-grid">{[[t('f1Title'),t('f1Body')],[t('f2Title'),t('f2Body')],[t('f3Title'),t('f3Body')],[experience.shareFeatureTitle,experience.shareFeatureBody]].map((item,index) => <article key={item[0]}><span>0{index + 1}</span><h3>{item[0]}</h3><p>{item[1]}</p></article>)}</div></section>
+    <LandingDetails/>
   </main>;
 }

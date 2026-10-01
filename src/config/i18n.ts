@@ -2,27 +2,27 @@ export const locales = ['en', 'th', 'zh', 'ja', 'ko', 'es'] as const;
 export type Locale = typeof locales[number];
 
 const en = {
-  myLinks:'My links', eyebrow:'Simple. Private. Yours.', heroA:'Shorten links.', heroB:'Stay in control.', heroDescription:'Create secure short links and QR codes. No account required.',
+  myLinks:'My links', eyebrow:'A little link. A lot of possibility.', heroA:'Good things.', heroB:'Short links.', heroDescription:'Give your next idea a link worth sharing. Shorten a URL, make a QR code, and choose who gets through—no sign-up needed.',
   pasteLongLink:'Paste a long link', paste:'Paste', addOptions:'+ Link settings', hideOptions:'− Hide settings', customName:'Custom name', password:'Password', optional:'optional', protectLink:'Add password',
   expiration:'Expiration', never:'Never', afterClicks:'Click limit', dateTime:'Date & time', maximumClicks:'Maximum clicks', expiresOn:'Expires on', timezone:'Your local timezone',
   campaignTools:'UTM campaign', source:'Source', medium:'Medium', campaign:'Campaign', term:'Term', content:'Content', removeTracking:'Remove existing tracking first',
-  loading:'Creating…', shorten:'Create short link', trust:'Private by design · Managed on this device', ready:'Ready to share', copy:'Copy', copied:'Copied', share:'Share', qr:'QR code', manage:'Manage link →',
-  featuresKicker:'EVERYTHING YOU NEED', featuresTitle:'Simple on the surface. Powerful when needed.', f1Title:'Custom', f1Body:'Use a memorable name.', f2Title:'Protected', f2Body:'Add access and expiry controls.', f3Title:'Trackable', f3Body:'See clicks from this device.', f4Title:'Portable', f4Body:'Move ownership with a recovery key.',
+  loading:'Creating…', shorten:'Create short link', trust:'No account needed · Keep your recovery key to manage links later', ready:'Ready to share', copy:'Copy', copied:'Copied', share:'Share', qr:'QR code', manage:'Manage link →',
+  featuresKicker:'MAKE THE LINK YOURS', featuresTitle:'A small detail. A better way to share.', f1Title:'A name that says something', f1Body:'Give your link a memorable name for your portfolio, next event or latest work.', f2Title:'Open on your terms', f2Body:'Add a password, set an expiry date or stop the link after a chosen number of visits.', f3Title:'See what gets a click', f3Body:'Check visits, countries, devices and referring websites from My links.', f4Title:'Portable', f4Body:'Move ownership with a recovery key.',
   faq:'FAQ', faqTitle:'Good to know.', faq1:'Do I need an account?', faq1a:'No. A private key on this device owns your links.', faq2:'Can I manage links later?', faq2a:'Yes. Open My links on this device.', faq3:'What if I change devices?', faq3a:'Export your recovery key before moving.', faq4:'Can links expire?', faq4a:'Yes, by date or click count.',
-  theme:'Theme', language:'Language'
+  clipboardFailed:'Clipboard unavailable. Please select and copy or paste the link manually.', createFailed:'We could not create your link. Check the address and try again.', theme:'Theme', language:'Language'
 };
 
 export const messages = {
   en,
   th: {
-    ...en, myLinks:'ลิงก์ของฉัน', eyebrow:'ง่าย เป็นส่วนตัว และเป็นของคุณ', heroA:'ย่อลิงก์ให้สั้น', heroB:'ควบคุมได้ครบ', heroDescription:'สร้างลิงก์สั้นและ QR Code ที่ปลอดภัย โดยไม่ต้องสมัคร',
+    ...en, myLinks:'ลิงก์ของฉัน', eyebrow:'เรื่องดี ๆ เริ่มที่ลิงก์เดียว', heroA:'ลิงก์สั้นลง', heroB:'ส่งต่อได้อีกเยอะ', heroDescription:'ส่งผลงาน ชวนมางาน หรือแชร์เรื่องที่อยากเล่า เปลี่ยน URL ยาวให้เป็นลิงก์จำง่าย พร้อม QR Code และตัวเลือกการเข้าถึง เริ่มได้เลย ไม่ต้องสมัคร',
     pasteLongLink:'วางลิงก์ยาว', paste:'วาง', addOptions:'+ ตั้งค่าลิงก์', hideOptions:'− ซ่อนการตั้งค่า', customName:'ชื่อที่ต้องการ', password:'รหัสผ่าน', optional:'ไม่บังคับ', protectLink:'เพิ่มรหัสผ่าน',
     expiration:'การหมดอายุ', never:'ไม่หมดอายุ', afterClicks:'จำกัดคลิก', dateTime:'วันและเวลา', maximumClicks:'จำนวนคลิกสูงสุด', expiresOn:'หมดอายุเมื่อ', timezone:'เขตเวลาของคุณ',
     campaignTools:'แคมเปญ UTM', source:'แหล่งที่มา', medium:'ช่องทาง', campaign:'แคมเปญ', term:'คำค้น', content:'คอนเทนต์', removeTracking:'ลบ tracking เดิมก่อน',
-    loading:'กำลังสร้าง…', shorten:'สร้างลิงก์สั้น', trust:'เป็นส่วนตัว · จัดการจากอุปกรณ์นี้', ready:'พร้อมแชร์', copy:'คัดลอก', copied:'คัดลอกแล้ว', share:'แชร์', qr:'QR Code', manage:'จัดการลิงก์ →',
-    featuresKicker:'เท่าที่จำเป็น', featuresTitle:'ใช้ง่าย และปรับเพิ่มได้เมื่อต้องการ', f1Title:'จำง่าย', f1Body:'กำหนดชื่อที่สื่อความหมาย', f2Title:'ปลอดภัย', f2Body:'ตั้งรหัสผ่านและวันหมดอายุ', f3Title:'ติดตามได้', f3Body:'ดูจำนวนคลิกจากอุปกรณ์นี้', f4Title:'ย้ายได้', f4Body:'โอนสิทธิ์ด้วย Recovery key',
+    loading:'กำลังสร้าง…', shorten:'สร้างลิงก์สั้น', trust:'ไม่ต้องสมัคร · เก็บ Recovery key ไว้จัดการลิงก์ภายหลัง', ready:'พร้อมแชร์', copy:'คัดลอก', copied:'คัดลอกแล้ว', share:'แชร์', qr:'QR Code', manage:'จัดการลิงก์ →',
+    featuresKicker:'ลิงก์ของคุณ ในแบบที่ต้องการ', featuresTitle:'รายละเอียดเล็ก ๆ ที่ทำให้แชร์ได้ดีขึ้น', f1Title:'เห็นชื่อ ก็รู้ว่าเรื่องอะไร', f1Body:'ตั้งชื่อลิงก์ให้เข้ากับผลงาน อีเวนต์ หรือแคมเปญ คนรับจำง่าย คุณก็หาเจอไว', f2Title:'เลือกได้ว่าจะเปิดถึงเมื่อไร', f2Body:'ใส่รหัสผ่าน ตั้งวันหมดอายุ หรือจำกัดจำนวนคลิก ให้เหมาะกับสิ่งที่คุณกำลังแชร์', f3Title:'รู้ว่าแชร์แล้วเป็นอย่างไร', f3Body:'ดูยอดเข้าชม ประเทศ อุปกรณ์ และเว็บไซต์ที่ส่งคนมา ได้จากหน้าลิงก์ของฉัน', f4Title:'ย้ายได้', f4Body:'โอนสิทธิ์ด้วย Recovery key',
     faq:'คำถาม', faqTitle:'สิ่งที่ควรรู้', faq1:'จำเป็นต้องสมัครบัญชีก่อนใช้งานหรือไม่?', faq1a:'ไม่จำเป็น คุณสามารถสร้างลิงก์ได้ทันที โดยสิทธิ์ในการจัดการจะเชื่อมโยงกับอุปกรณ์ผ่าน Recovery key', faq2:'สามารถกลับมาแก้ไขหรือจัดการลิงก์ภายหลังได้หรือไม่?', faq2a:'ได้ เปิดเมนู “ลิงก์ของฉัน” จากอุปกรณ์ที่ใช้สร้างลิงก์ หรือกู้คืนสิทธิ์ด้วย Recovery key', faq3:'หากเปลี่ยนอุปกรณ์ต้องดำเนินการอย่างไร?', faq3a:'ควรสำรอง Recovery key จากอุปกรณ์เดิม แล้วนำไปกู้คืนสิทธิ์บนอุปกรณ์ใหม่ โดยเก็บคีย์เป็นความลับ', faq4:'สามารถกำหนดวันหมดอายุของลิงก์ได้หรือไม่?', faq4a:'ได้ คุณสามารถกำหนดวันและเวลาหมดอายุ หรือจำกัดจำนวนการเข้าชมตามวัตถุประสงค์การใช้งาน',
-    theme:'ธีม', language:'ภาษา'
+    clipboardFailed:'ใช้คลิปบอร์ดไม่ได้ ลองเลือกข้อความเพื่อคัดลอกหรือวางลิงก์ด้วยตัวเอง', createFailed:'ยังสร้างลิงก์ไม่ได้ ตรวจสอบที่อยู่แล้วลองอีกครั้งนะ', theme:'ธีม', language:'ภาษา'
   },
   zh: {
     ...en, myLinks:'我的链接', eyebrow:'简单、私密、属于你', heroA:'缩短链接', heroB:'保持掌控', heroDescription:'创建安全的短链接和二维码，无需注册。',

@@ -23,11 +23,13 @@ export default function FaqPage(){
     .filter(([,items])=>items.length>0),[activeCategory,locale,normalized,sections]);
   const resultCount=visibleSections.reduce((total,[,items])=>total+items.length,0);
 
+  const schema = {'@context':'https://schema.org','@type':'FAQPage',mainEntity:sections.flatMap(([,items])=>items.map(([question,answer])=>({'@type':'Question',name:question,acceptedAnswer:{'@type':'Answer',text:answer}})))};
   return <main>
     <AppHeader active="faq"/>
+    <script id="faq-structured-data" type="application/ld+json" dangerouslySetInnerHTML={{__html:JSON.stringify(schema).replace(/</g,'\\u003c')}}/>
     <section className="help-hero"><p className="kicker">MEMOLINK SUPPORT</p><h1>{text.faqTitle}</h1><p>{text.faqDescription}</p>
       <div className="faq-search" role="search"><MagnifyingGlassIcon aria-hidden="true"/><input type="search" value={query} onChange={event=>setQuery(event.target.value)} placeholder={copy.faqSearch} aria-label={copy.faqSearch}/>{query?<button type="button" onClick={()=>setQuery('')} aria-label={copy.clearSearch}><XMarkIcon/></button>:null}</div>
-      <div className="faq-filter" aria-label={copy.faqAll}><button type="button" className={activeCategory===null?'active':''} onClick={()=>setActiveCategory(null)}>{copy.faqAll}</button>{sections.map(([title])=><button type="button" className={activeCategory===title?'active':''} key={title} onClick={()=>setActiveCategory(title)}>{title}</button>)}</div>
+      <div className="faq-filter" aria-label={copy.faqAll}><button aria-pressed={activeCategory===null} type="button" className={activeCategory===null?'active':''} onClick={()=>setActiveCategory(null)}>{copy.faqAll}</button>{sections.map(([title])=><button aria-pressed={activeCategory===title} type="button" className={activeCategory===title?'active':''} key={title} onClick={()=>setActiveCategory(title)}>{title}</button>)}</div>
       <p className="faq-result-count" aria-live="polite">{resultCount} {copy.faqResults}</p>
     </section>
     {visibleSections.length?<section className="help-sections">

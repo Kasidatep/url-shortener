@@ -8,9 +8,9 @@ import { usePreferences } from './PreferencesProvider';
 
 type Theme='light'|'dark'|'system';
 type Menu='language'|'theme'|null;
-const languageOptions:Array<{value:Locale;label:string;flag:string}>=[
-  {value:'en',label:'English',flag:'🇬🇧'},{value:'th',label:'ไทย',flag:'🇹🇭'},{value:'zh',label:'简体中文',flag:'🇨🇳'},
-  {value:'ja',label:'日本語',flag:'🇯🇵'},{value:'ko',label:'한국어',flag:'🇰🇷'},{value:'es',label:'Español',flag:'🇪🇸'},
+const languageOptions:Array<{value:Locale;label:string;code:string}>=[
+  {value:'en',label:'English',code:'EN'},{value:'th',label:'ไทย',code:'TH'},{value:'zh',label:'简体中文',code:'ZH'},
+  {value:'ja',label:'日本語',code:'JA'},{value:'ko',label:'한국어',code:'KO'},{value:'es',label:'Español',code:'ES'},
 ];
 
 function ThemeIcon({theme}:{theme:Theme}){return theme==='light'?<SunIcon/>:theme==='dark'?<MoonIcon/>:<ComputerDesktopIcon/>;}
@@ -34,8 +34,8 @@ export default function PreferenceControls(){
 
   return <div className="preference-controls preference-popovers" ref={rootRef}>
     <div className="preference-menu">
-      <button type="button" className="preference-trigger" aria-label={t('language')} aria-haspopup="menu" aria-expanded={open==='language'} onClick={()=>setOpen(value=>value==='language'?null:'language')}><LanguageIcon/><span className="preference-flag">{currentLanguage.flag}</span><span className="preference-value">{currentLanguage.label}</span><ChevronDownIcon/></button>
-      {open==='language'?<div className="preference-popover language-popover" role="menu" aria-label={t('language')}>{languageOptions.map(option=><button type="button" role="menuitemradio" aria-checked={locale===option.value} key={option.value} onClick={()=>{setLocale(option.value);setOpen(null);}}><span className="preference-flag">{option.flag}</span><span>{option.label}</span>{locale===option.value?<CheckIcon/>:null}</button>)}</div>:null}
+      <button type="button" className="preference-trigger" aria-label={t('language')} aria-haspopup="menu" aria-expanded={open==='language'} onClick={()=>setOpen(value=>value==='language'?null:'language')}><LanguageIcon/><span className="preference-flag">{currentLanguage.code}</span><span className="preference-value">{currentLanguage.label}</span><ChevronDownIcon/></button>
+      {open==='language'?<div className="preference-popover language-popover" role="menu" aria-label={t('language')}>{languageOptions.map(option=><button type="button" role="menuitemradio" aria-checked={locale===option.value} key={option.value} onClick={()=>{setLocale(option.value);setOpen(null);}}><span className="preference-flag">{option.code}</span><span>{option.label}</span>{locale===option.value?<CheckIcon/>:null}</button>)}</div>:null}
     </div>
     <div className="preference-menu">
       <button type="button" className="preference-trigger theme-trigger" aria-label={t('theme')} aria-haspopup="menu" aria-expanded={open==='theme'} onClick={()=>setOpen(value=>value==='theme'?null:'theme')}><ThemeIcon theme={theme}/><span className="preference-value">{themes.find(item=>item.value===theme)?.label}</span><ChevronDownIcon/></button>
