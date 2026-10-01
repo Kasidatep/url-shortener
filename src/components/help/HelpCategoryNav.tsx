@@ -1,0 +1,1 @@
+export default function HelpCategoryNav({categories,active,onChange,label}:{categories:string[];active:number;onChange:(index:number)=>void;label:string}){return <nav className="help-categories" aria-label={label}>{categories.map((title,index)=><button type="button" key={title} aria-pressed={active===index} onClick={()=>onChange(index)}>{title}</button>)}</nav>;}

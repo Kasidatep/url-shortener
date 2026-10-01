@@ -1,0 +1,1 @@
+export default function ListSkeleton({label}:{label:string}){return <div className="list-skeleton" role="status" aria-label={label}><span className="sr-only">{label}</span>{[0,1,2].map(i=><div key={i} aria-hidden="true"><span/><span/><span/></div>)}</div>;}

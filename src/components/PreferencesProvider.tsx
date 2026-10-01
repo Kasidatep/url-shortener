@@ -10,7 +10,7 @@ const localeSet = new Set<string>(locales);
 
 export function PreferencesProvider({ children }: { children: React.ReactNode }) {
   const [locale, setLocaleState] = useState<Locale>('en');
-  const [theme, setThemeState] = useState<Theme>('light');
+  const [theme, setThemeState] = useState<Theme>('dark');
 
   useEffect(() => {
     const savedLocale = localStorage.getItem('memolink-locale');

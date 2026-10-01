@@ -1,0 +1,1 @@
+export default function FAQItem({question,answer}:{question:string;answer:string}){return <details className="faq-item"><summary>{question}<span aria-hidden="true">+</span></summary><p>{answer}</p></details>;}

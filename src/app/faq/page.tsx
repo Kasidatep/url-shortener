@@ -1,39 +1,25 @@
 'use client';
-
-import { useMemo, useState } from 'react';
-import { MagnifyingGlassIcon, XMarkIcon } from '@heroicons/react/24/outline';
+import {useMemo,useState} from 'react';
 import AppHeader from '@/components/AppHeader';
-import { usePreferences } from '@/components/PreferencesProvider';
-import { getPageMessages } from '@/config/page-i18n';
-import { extraFaqSections } from '@/config/faq-extra-i18n';
-import { moreFaqSections } from '@/config/faq-more-i18n';
-import { experienceMessages } from '@/config/experience-i18n';
-
+import SearchInput from '@/components/ui/SearchInput';
+import FAQItem from '@/components/help/FAQItem';
+import HelpCategoryNav from '@/components/help/HelpCategoryNav';
+import {usePreferences} from '@/components/PreferencesProvider';
+import {getPageMessages} from '@/config/page-i18n';
+import {extraFaqSections} from '@/config/faq-extra-i18n';
+import {moreFaqSections} from '@/config/faq-more-i18n';
+import {experienceMessages} from '@/config/experience-i18n';
+import {utilityMessages} from '@/config/utility-i18n';
+const categoryNames={en:['All','Create','Manage','Analytics','Share','Safety'],th:['ทั้งหมด','สร้างลิงก์','จัดการ','สถิติ','แชร์','ความปลอดภัย'],zh:['全部','创建','管理','统计','分享','安全'],ja:['すべて','作成','管理','分析','共有','安全'],ko:['전체','만들기','관리','통계','공유','보안'],es:['Todo','Crear','Gestionar','Estadísticas','Compartir','Seguridad']};
 export default function FaqPage(){
-  const {locale}=usePreferences();
-  const text=getPageMessages(locale);
-  const copy=experienceMessages[locale];
-  const [query,setQuery]=useState('');
-  const [activeCategory,setActiveCategory]=useState<string|null>(null);
-  const sections=useMemo(()=>[...text.faqSections,...extraFaqSections[locale],...moreFaqSections[locale]],[locale,text.faqSections]);
-  const normalized=query.trim().toLocaleLowerCase(locale);
-  const visibleSections=useMemo(()=>sections
-    .filter(([title])=>!activeCategory||title===activeCategory)
-    .map(([title,items])=>[title,normalized?items.filter(([question,answer])=>(question+' '+answer).toLocaleLowerCase(locale).includes(normalized)):items] as typeof sections[number])
-    .filter(([,items])=>items.length>0),[activeCategory,locale,normalized,sections]);
-  const resultCount=visibleSections.reduce((total,[,items])=>total+items.length,0);
-
-  const schema = {'@context':'https://schema.org','@type':'FAQPage',mainEntity:sections.flatMap(([,items])=>items.map(([question,answer])=>({'@type':'Question',name:question,acceptedAnswer:{'@type':'Answer',text:answer}})))};
-  return <main>
-    <AppHeader active="faq"/>
-    <script id="faq-structured-data" type="application/ld+json" dangerouslySetInnerHTML={{__html:JSON.stringify(schema).replace(/</g,'\\u003c')}}/>
-    <section className="help-hero"><p className="kicker">MEMOLINK SUPPORT</p><h1>{text.faqTitle}</h1><p>{text.faqDescription}</p>
-      <div className="faq-search" role="search"><MagnifyingGlassIcon aria-hidden="true"/><input type="search" value={query} onChange={event=>setQuery(event.target.value)} placeholder={copy.faqSearch} aria-label={copy.faqSearch}/>{query?<button type="button" onClick={()=>setQuery('')} aria-label={copy.clearSearch}><XMarkIcon/></button>:null}</div>
-      <div className="faq-filter" aria-label={copy.faqAll}><button aria-pressed={activeCategory===null} type="button" className={activeCategory===null?'active':''} onClick={()=>setActiveCategory(null)}>{copy.faqAll}</button>{sections.map(([title])=><button aria-pressed={activeCategory===title} type="button" className={activeCategory===title?'active':''} key={title} onClick={()=>setActiveCategory(title)}>{title}</button>)}</div>
-      <p className="faq-result-count" aria-live="polite">{resultCount} {copy.faqResults}</p>
-    </section>
-    {visibleSections.length?<section className="help-sections">
-      {visibleSections.map(([title,items])=><section className="help-section" key={title}><h2>{title}</h2><div>{items.map(([question,answer])=><details key={question}><summary>{question}</summary><p>{answer}</p></details>)}</div></section>)}
-    </section>:<section className="faq-empty"><MagnifyingGlassIcon/><h2>{copy.faqNoResults}</h2><button type="button" onClick={()=>{setQuery('');setActiveCategory(null);}}>{copy.clearSearch}</button></section>}
-  </main>;
+ const {locale}=usePreferences();const text=getPageMessages(locale);const copy=experienceMessages[locale];const ui=utilityMessages[locale];
+ const [query,setQuery]=useState('');const [category,setCategory]=useState(0);
+ const entries=useMemo(()=>{
+  const base=text.faqSections;const extra=extraFaqSections[locale];const more=moreFaqSections[locale];
+  return [...base.flatMap(([,items],i)=>items.map(([question,answer],j)=>({question,answer,category:i===0?1:i===1?5:j===2?3:2}))),...extra.flatMap(([,items],i)=>items.map(([question,answer])=>({question,answer,category:i===0?4:5}))),...more.flatMap(([,items],i)=>items.map(([question,answer])=>({question,answer,category:i===0?5:4})))];
+ },[locale,text.faqSections]);
+ const normalized=query.trim().toLocaleLowerCase(locale);
+ const results=entries.filter(item=>(category===0||item.category===category)&&(!normalized||(item.question+' '+item.answer).toLocaleLowerCase(locale).includes(normalized)));
+ const schema={'@context':'https://schema.org','@type':'FAQPage',mainEntity:entries.map(item=>({'@type':'Question',name:item.question,acceptedAnswer:{'@type':'Answer',text:item.answer}}))};
+ return <main className="utility-page help-page"><AppHeader active="faq"/><section id="main-content" tabIndex={-1} className="help-workspace"><header className="page-heading"><h1>{text.navFaq}</h1><p>{text.faqDescription}</p></header><SearchInput value={query} onChange={setQuery} label={ui.helpSearch} clearLabel={copy.clearSearch}/><HelpCategoryNav categories={categoryNames[locale]} active={category} onChange={setCategory} label={text.navFaq}/><p className="search-count" aria-live="polite">{results.length} {copy.faqResults}</p>{results.length?<div className="faq-list">{results.map(item=><FAQItem key={item.question} {...item}/>)}</div>:<div className="empty-state"><h2>{copy.faqNoResults}</h2><p>{{en:"Try a shorter search or choose another topic.",th:"ลองใช้คำสั้นลง หรือเลือกหัวข้ออื่น",zh:"请缩短关键词或选择其他主题。",ja:"短い言葉で検索するか、別の項目を選んでください。",ko:"짧은 검색어나 다른 주제를 선택하세요.",es:"Prueba una búsqueda más corta u otro tema."}[locale]}</p><button className="ui-button secondary" onClick={()=>{setQuery('');setCategory(0);}}>{copy.clearSearch}</button></div>}<aside className="help-contact"><h2>{ui.contact}</h2><a className="ui-button secondary" href="https://memolab.me">{ui.contactAction} ↗</a></aside></section><script type="application/ld+json" dangerouslySetInnerHTML={{__html:JSON.stringify(schema).replace(/</g,'\\u003c')}}/></main>;
 }
