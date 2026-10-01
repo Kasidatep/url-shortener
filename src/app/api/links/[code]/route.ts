@@ -10,8 +10,8 @@ function ownerFilter(request: NextRequest, code: string) {
   return isValidDeviceKey(key) ? { shortUrl: code, ownerDeviceHash: hashSecret(key!) } : null;
 }
 
-export async function PATCH(request: NextRequest, { params }: { params: { code: string } }) {
-  const filter = ownerFilter(request, params.code);
+export async function PATCH(request: NextRequest, { params }: { params: Promise<{ code: string }> }) {
+  const filter = ownerFilter(request, (await params).code);
   if (!filter) return NextResponse.json({ message: 'Unauthorized' }, { status: 401 });
   try {
     const body = await request.json();
@@ -28,8 +28,8 @@ export async function PATCH(request: NextRequest, { params }: { params: { code: 
   }
 }
 
-export async function DELETE(request: NextRequest, { params }: { params: { code: string } }) {
-  const filter = ownerFilter(request, params.code);
+export async function DELETE(request: NextRequest, { params }: { params: Promise<{ code: string }> }) {
+  const filter = ownerFilter(request, (await params).code);
   if (!filter) return NextResponse.json({ message: 'Unauthorized' }, { status: 401 });
   await connectMongo();
   const result = await Url.deleteOne(filter);

@@ -9,7 +9,8 @@ import PreferenceControls from './PreferenceControls';
 import { usePreferences } from './PreferencesProvider';
 import { getDeviceKey } from '@/lib/device';
 import { getPageMessages } from '@/config/page-i18n';
-import { experienceMessages } from '@/config/experience-i18n';
+import { LandingIntro, LinkPlayground, LandingStory, useLandingCopy } from './LandingStory';
+import styles from './landing.module.css';
 import MemoLinkLogo from './MemoLinkLogo';
 import { useNotifications } from './NotificationTray';
 
@@ -35,7 +36,7 @@ export default function ShortenerApp() {
   const { t, locale } = usePreferences();
   const { notify } = useNotifications();
   const pageText = getPageMessages(locale);
-  const experience = experienceMessages[locale];
+  const { copy: landing, lang } = useLandingCopy();
   const [url, setUrl] = useState('');
   const [alias, setAlias] = useState('');
   const [password, setPassword] = useState('');
@@ -71,20 +72,22 @@ export default function ShortenerApp() {
   }
 
   async function paste() {
-    try { setUrl(await navigator.clipboard.readText()); } catch { notify('Clipboard access was not available', 'error'); }
+    try { setUrl(await navigator.clipboard.readText()); } catch { notify(landing.clipboardError, 'error'); }
   }
-  async function copy() { await navigator.clipboard.writeText(shortUrl); setStatus('copied'); notify(t('copied'), 'success'); window.setTimeout(() => setStatus('idle'), 1600); }
+  async function copy() { try { await navigator.clipboard.writeText(shortUrl); setStatus('copied'); notify(t('copied'), 'success'); window.setTimeout(() => setStatus('idle'), 1600); } catch { notify(landing.clipboardError, 'error'); } }
   function changeUtm(key: keyof Utm, value: string) { setUtm(current => ({ ...current, [key]: value })); }
 
-  return <main>
+  return <main className={styles.landing}>
+    <a className={styles.skip} href="#create-link">{t('shorten')}</a>
     <nav className="nav">
       <MemoLinkLogo/>
       <div className="nav-actions"><Link href="/faq" className="nav-link nav-link-quiet">{pageText.navFaq}</Link><PreferenceControls /><Link href="/manage" className="nav-link">{t('myLinks')}</Link></div>
     </nav>
 
-    <section className="hero">
-      <h1>{t('heroA')} <span>{t('heroB')}</span></h1>
-      <p>{t('heroDescription')}</p>
+    <section className={styles.heroGrid}><LandingIntro /><LinkPlayground /></section>
+    <section id="create-link" className={styles.composer} aria-labelledby="create-title">
+      <div className={styles.composerIntro} lang={lang}><h2 id="create-title">{landing.formTitle}</h2><p>{landing.formHint}</p><p>{landing.definition}</p></div>
+      <div>
 
       <form className="shortener-card" onSubmit={submit}>
         <label htmlFor="url">{t('pasteLongLink')}</label>
@@ -111,8 +114,9 @@ export default function ShortenerApp() {
 
       {shortUrl ? <section className="result-card" aria-live="polite"><div><span className="success-dot">✓</span><div><small>{t('ready')}</small><a href={shortUrl} target="_blank" rel="noreferrer">{shortUrl}</a></div></div><div className="result-actions"><button type="button" onClick={copy}><ClipboardDocumentIcon />{status === 'copied' ? t('copied') : t('copy')}</button><button type="button" onClick={() => setShareOpen(true)}><ShareIcon />{t('share')}</button><button type="button" onClick={() => setShowQr(value => !value)}><QrCodeIcon />{t('qr')}</button></div>{showQr ? <QRCodeComponent shortUrl={shortUrl} /> : null}<Link href="/manage" className="manage-link">{t('manage')}</Link></section> : null}
       <ShareKit open={shareOpen} url={shortUrl} onClose={() => setShareOpen(false)}/>
+      </div>
     </section>
 
-    <section className="features" aria-labelledby="features-title"><div><p className="kicker">{t('featuresKicker')}</p><h2 id="features-title">{t('featuresTitle')}</h2></div><div className="feature-grid">{[[t('f1Title'),t('f1Body')],[t('f2Title'),t('f2Body')],[t('f3Title'),t('f3Body')],[experience.shareFeatureTitle,experience.shareFeatureBody]].map((item,index) => <article key={item[0]}><span>0{index + 1}</span><h3>{item[0]}</h3><p>{item[1]}</p></article>)}</div></section>
+    <LandingStory />
   </main>;
 }

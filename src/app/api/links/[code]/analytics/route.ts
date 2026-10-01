@@ -6,17 +6,17 @@ import { hashSecret, isValidDeviceKey } from '@/lib/security';
 
 type Breakdown = Record<string, number>;
 
-export async function GET(request: NextRequest, { params }: { params: { code: string } }) {
+export async function GET(request: NextRequest, { params }: { params: Promise<{ code: string }> }) {
   const key = request.headers.get('x-device-key');
   if (!isValidDeviceKey(key)) return NextResponse.json({ message: 'Unauthorized' }, { status: 401 });
   await connectMongo();
-  const owned = await Url.exists({ shortUrl: params.code, ownerDeviceHash: hashSecret(key!) });
+  const owned = await Url.exists({ shortUrl: (await params).code, ownerDeviceHash: hashSecret(key!) });
   if (!owned) return NextResponse.json({ message: 'Link not found' }, { status: 404 });
 
   const since = new Date();
   since.setUTCDate(since.getUTCDate() - 29);
   const sinceDate = since.toISOString().slice(0, 10);
-  const rows = await LinkAnalytics.find({ shortUrl: params.code, date: { $gte: sinceDate } }).lean();
+  const rows = await LinkAnalytics.find({ shortUrl: (await params).code, date: { $gte: sinceDate } }).lean();
 
   const daily: Breakdown = {};
   const countries: Breakdown = {};
