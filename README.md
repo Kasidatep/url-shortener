@@ -34,3 +34,13 @@ You can check out [the Next.js GitHub repository](https://github.com/vercel/next
 The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
 
 Check out our [Next.js deployment documentation](https://nextjs.org/docs/deployment) for more details.
+
+## Runtime and Netlify builds
+
+Use Node.js 24 (`nvm use` reads `.nvmrc`), then run `npm ci` and `npm run build`.
+The repository pins the same Node major in `package.json` and `netlify.toml`
+so deploy previews and production builds do not inherit an older site default.
+
+The build script explicitly uses Webpack because `next-pwa` adds a Webpack
+plugin. Run `npm run build` locally to use the same command as Netlify.
+Keep `MONGO_URI` and `APP_URL` in Netlify environment settings; do not commit secrets.
