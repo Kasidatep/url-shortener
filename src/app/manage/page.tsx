@@ -20,6 +20,7 @@ import Disclosure from '@/components/ui/Disclosure';
 import ShareKit from '@/components/ShareKit';
 import {utilityMessages} from '@/config/utility-i18n';
 import {studioMessages} from '@/config/studio-i18n';
+import {canvasMessages} from '@/config/canvas-i18n';
 type Analytics = { visits30d: number; daily: Record<string,number>; countries: Record<string,number>; devices: Record<string,number>; referrers: Record<string,number> };
 
 function Breakdown({ title, values }: { title: string; values: Record<string,number> }) {
@@ -40,6 +41,7 @@ export default function ManagePage() {
   const text = getPageMessages(locale);
   const copy=utilityMessages[locale];
   const studio=studioMessages[locale];
+  const canvas=canvasMessages[locale];
   const [recoveryOpen,setRecoveryOpen]=useState(false);
   useEffect(()=>{
     const revealRecovery=()=>{if(window.location.hash==='#recovery')setRecoveryOpen(true);};
@@ -110,8 +112,8 @@ export default function ManagePage() {
   return <main className="utility-page manage-page">
     <AppHeader active="links" />
     <div id="main-content" tabIndex={-1} className="dashboard-shell">
-      <header className="dashboard-head"><div><p className="kicker">{studio.manageEyebrow}</p><h1>{text.dashboardTitle}</h1><p className="dashboard-tagline">{studio.manageTitle}</p><p>{studio.manageBody}</p></div><Link href="/" className="ui-button primary"><PlusIcon aria-hidden="true"/>{text.navCreate}</Link></header>
-      <p className="device-notice"><KeyIcon aria-hidden="true"/>{studio.deviceNote}</p>
+      <header className="dashboard-head"><div><p className="kicker">{studio.manageEyebrow}</p><h1>{canvas.manageTitle}</h1><p>{canvas.manageBody}</p></div><Link href="/" className="ui-button primary"><PlusIcon aria-hidden="true"/>{text.navCreate}</Link></header>
+      <p className="device-notice"><KeyIcon aria-hidden="true"/><span>{canvas.deviceNote} <a href="#recovery" onClick={()=>setRecoveryOpen(true)}>{text.recovery} ↗</a></span></p>
       <LinkSummary count={links.length} clicks={totals.clicks} active={totals.active} pending={loading||loadError}/>
       <div className="manager-tools"><SearchInput value={query} onChange={setQuery} label={copy.search} clearLabel={copy.all}/><Disclosure label={copy.filters}><label>{copy.filters}<select value={filter} onChange={e=>setFilter(e.target.value)}><option value="all">{copy.all}</option><option value="active">{text.live}</option><option value="paused">{text.paused}</option><option value="expired">{copy.expired}</option></select></label><label>{copy.newest} / {copy.popular}<select value={sort} onChange={e=>setSort(e.target.value)}><option value="newest">{copy.newest}</option><option value="oldest">{copy.oldest}</option><option value="popular">{copy.popular}</option><option value="recent">{copy.recent}</option></select></label></Disclosure></div>
       {!loading&&!loadError&&links.length>0?<div className="collection-heading"><h2>{studio.collection}</h2><span aria-live="polite">{filtered.length} {studio.results}</span></div>:null}

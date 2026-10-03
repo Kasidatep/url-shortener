@@ -17,6 +17,9 @@ MemoLink supports custom short names, optional passwords, expiration dates, clic
 ## ภาษาไทย
 MemoLink เป็นเครื่องมือย่อลิงก์และสร้าง QR Code ฟรีจาก MemoLab ไม่ต้องสมัครบัญชี ตั้งชื่อลิงก์ เพิ่มรหัสผ่าน กำหนดวันหมดอายุ และดูสถิติการเข้าชมแบบรวมได้ เก็บคีย์กู้คืนเป็นความลับเพื่อย้ายสิทธิ์จัดการไปยังอุปกรณ์ใหม่
 
+## Creation journey
+The creation screen is a compact form. A dismissible three-step introduction explains paste, optional settings and sharing. Dismissal is stored in sessionStorage under a versioned key for the current tab session; users can reopen the introduction. No link, password or recovery key is stored in that introduction flag. Optional settings open in a dialog and remain in the current page state until creation or reset.
+
 ## Sharing previews
 Public, active links may fetch the destination title and social image for a sharing preview. Protected and expired links use generic previews. Sharing platforms can cache older previews.
 

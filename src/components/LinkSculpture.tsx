@@ -1,0 +1,5 @@
+import {LinkIcon,CheckIcon,PaperAirplaneIcon} from '@heroicons/react/24/outline';
+// CSS perspective keeps the illustration lightweight and usable without WebGL.
+export default function LinkSculpture({stage=0,small=false}:{stage?:number;small?:boolean}){
+ return <div className={'link-sculpture'+(small?' small':'')} data-stage={stage} aria-hidden="true"><div className="sculpture-floor"/><div className="sculpture-orbit"><div className="sculpture-ring ring-one"/><div className="sculpture-ring ring-two"/></div><div className="sculpture-address"><span><i/><i/><i/></span><code>example.com/a-long-story</code><div className="sculpture-lines"><i/><i/></div></div><div className="sculpture-ticket"><div className="ticket-mark"><LinkIcon/></div><span>MemoLink</span><strong>l.memolab.me/hello</strong><div className="ticket-rule"/><div className="ticket-bottom"><span>↗</span><CheckIcon/></div></div><div className="sculpture-message"><PaperAirplaneIcon/><span>hello.</span></div><div className="sculpture-spark spark-one">✳</div><div className="sculpture-spark spark-two">+</div></div>;
+}

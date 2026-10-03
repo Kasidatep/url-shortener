@@ -1,12 +1,12 @@
 'use client';
 
 import Image from 'next/image';
-import { useEffect, useRef } from 'react';
-import { ArrowDownTrayIcon, ArrowUpOnSquareIcon, ClipboardDocumentIcon, EnvelopeIcon, PhotoIcon, XMarkIcon } from '@heroicons/react/24/outline';
+import { ArrowDownTrayIcon, ArrowUpOnSquareIcon, ClipboardDocumentIcon, EnvelopeIcon, PhotoIcon } from '@heroicons/react/24/outline';
 import { usePreferences } from './PreferencesProvider';
 import { useNotifications } from './NotificationTray';
 import { dialogMessages } from '@/config/dialog-i18n';
 import { experienceMessages } from '@/config/experience-i18n';
+import ProductDialog from './ProductDialog';
 
 type Target={name:string;mark:string;className:string;url:(link:string,text:string)=>string};
 const targets:Target[]=[
@@ -20,29 +20,11 @@ const targets:Target[]=[
 
 export default function ShareKit({open,url,onClose}:{open:boolean;url:string;onClose:()=>void}){
   const {locale,t}=usePreferences();
-  const dialogRef=useRef<HTMLElement>(null);
   const copy=experienceMessages[locale];
   const {notify}=useNotifications();
   const shareText='MemoLink';
   const cardPath=url?new URL(url).pathname.replace(/\/$/,'')+'/opengraph-image':'/opengraph-image';
 
-  useEffect(()=>{
-    if(!open)return;
-    const previousFocus=document.activeElement instanceof HTMLElement?document.activeElement:null;
-    const focusable=()=>Array.from(dialogRef.current?.querySelectorAll<HTMLElement>('button:not(:disabled), a[href], [tabindex="0"]')??[]);
-    focusable()[0]?.focus();
-    const close=(event:KeyboardEvent)=>{
-      if(event.key==='Escape'){event.preventDefault();onClose();}
-      if(event.key==='Tab'){
-        const elements=focusable();const first=elements[0];const last=elements[elements.length-1];
-        if(event.shiftKey&&document.activeElement===first){event.preventDefault();last?.focus();}
-        else if(!event.shiftKey&&document.activeElement===last){event.preventDefault();first?.focus();}
-      }
-    };
-    document.addEventListener('keydown',close);
-    document.body.classList.add('dialog-open');
-    return()=>{document.removeEventListener('keydown',close);document.body.classList.remove('dialog-open');previousFocus?.focus();};
-  },[open,onClose]);
 
   if(!open)return null;
   function openTarget(target:Target){const popup=window.open(target.url(url,shareText),'_blank','noopener,noreferrer');if(popup)popup.opener=null;}
@@ -75,9 +57,7 @@ export default function ShareKit({open,url,onClose}:{open:boolean;url:string;onC
     catch(error){if(!(error instanceof DOMException&&error.name==='AbortError'))await copyLink();}
   }
 
-  return <div className="dialog-backdrop share-backdrop" role="presentation" onMouseDown={event=>{if(event.target===event.currentTarget)onClose();}}>
-    <section ref={dialogRef} className="share-kit" role="dialog" aria-modal="true" aria-labelledby="share-title">
-      <header><div><p className="kicker">MemoLink</p><h2 id="share-title">{copy.shareTitle}</h2><p>{copy.shareBody}</p></div><button type="button" className="share-close" onClick={onClose} aria-label={copy.close}><XMarkIcon/></button></header>
+  return <ProductDialog open={open} onClose={onClose} title={copy.shareTitle} id="share-title" className="share-kit"><p className="dialog-intro">{copy.shareBody}</p>
       <div className="share-platforms">{targets.map(target=><button type="button" key={target.name} onClick={()=>openTarget(target)}><span className={'share-platform-mark '+target.className}>{target.mark}</span><span>{target.name}</span></button>)}</div>
       <div className="share-utility">
         <button type="button" onClick={()=>void nativeShare()}><ArrowUpOnSquareIcon/><span>{copy.shareNative}</span></button>
@@ -86,6 +66,5 @@ export default function ShareKit({open,url,onClose}:{open:boolean;url:string;onC
         <a href={'mailto:?subject='+encodeURIComponent('MemoLink')+'&body='+encodeURIComponent(url)}><EnvelopeIcon/><span>{copy.email}</span></a>
       </div>
       <div className="share-card-preview"><Image src={cardPath} width={600} height={315} unoptimized alt={copy.shareTitle}/><div><span>{url}</span><button type="button" onClick={()=>void downloadCard()}><ArrowDownTrayIcon/>{copy.downloadCard}</button></div></div>
-    </section>
-  </div>;
+  </ProductDialog>;
 }
