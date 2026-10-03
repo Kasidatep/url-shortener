@@ -13,6 +13,7 @@ import './utility.css';
 import '@/components/shortener.css';
 import './studio.css';
 import './canvas.css';
+import './visual.css';
 
 const inter=Inter({subsets:['latin'],display:'swap',variable:'--font-inter'});
 const notoThai=Noto_Sans_Thai({subsets:['thai'],display:'swap',variable:'--font-thai'});

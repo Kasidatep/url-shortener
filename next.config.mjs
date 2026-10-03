@@ -34,6 +34,7 @@ export default withPWA({
   outputFileTracingIncludes:{
     '/opengraph-image':['./public/fonts/*.woff'],
     '/faq/opengraph-image':['./public/fonts/*.woff'],
+    '/*/opengraph-image':['./public/fonts/*.woff'],
   },
   poweredByHeader:false,
   async headers(){return[{source:'/:path*',headers:securityHeaders}];},

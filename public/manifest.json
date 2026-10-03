@@ -1,11 +1,11 @@
 {
-  "name": "MemoLink — Short links with control",
+  "name": "MemoLink \u2014 Short links with control",
   "short_name": "MemoLink",
   "description": "Create and manage secure short links and QR codes.",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#f7f8fc",
-  "theme_color": "#6457e8",
+  "background_color": "#f7f7f2",
+  "theme_color": "#132838",
   "icons": [
     {
       "src": "/icon-192x192.jpg",

@@ -1,0 +1,822 @@
+/* Folded ribbons, quiet controls, and a little journey worth watching. */
+.wordmark .brand-symbol {
+  width: 42px;
+  height: 42px;
+  flex-shrink: 0;
+  filter: drop-shadow(
+    0 3px 0 color-mix(in srgb, var(--foreground) 12%, transparent)
+  );
+  transition: transform 0.3s;
+}
+.wordmark:hover .brand-symbol {
+  transform: rotate(-5deg) translateY(-1px);
+}
+.wordmark > span {
+  font-weight: 600;
+  letter-spacing: -0.055em;
+}
+.wordmark-link {
+  color: var(--primary);
+}
+.graphic-choices {
+  border: 0 !important;
+  padding: 0 !important;
+  margin: 20px 0 0;
+  min-width: 0;
+}
+.graphic-choices legend {
+  font-size: 13px;
+  font-weight: 500;
+  margin-bottom: 10px;
+  color: var(--foreground);
+}
+.graphic-choice-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+}
+.graphic-choice {
+  position: relative;
+  display: block !important;
+  margin: 0 !important;
+  min-width: 0;
+  cursor: pointer;
+}
+.graphic-choice input {
+  position: absolute;
+  width: 1px !important;
+  height: 1px !important;
+  min-height: 0 !important;
+  padding: 0 !important;
+  opacity: 0;
+  left: 16px;
+  top: 16px;
+}
+.choice-face {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  min-height: 155px;
+  border: 1px solid var(--border-strong);
+  border-radius: 14px;
+  padding: 16px 14px;
+  background: var(--surface);
+  transition:
+    border-color 0.2s,
+    background 0.2s,
+    transform 0.25s;
+  overflow: hidden;
+}
+.choice-illustration {
+  display: grid;
+  place-items: center;
+  width: 43px;
+  height: 40px;
+  border-radius: 11px;
+  background: var(--primary-soft);
+  color: var(--primary);
+  box-shadow: 0 3px 0 color-mix(in srgb, var(--primary) 20%, transparent);
+  transform: rotate(-5deg);
+  transition: transform 0.3s;
+}
+.choice-illustration svg {
+  width: 25px;
+  height: 25px;
+}
+.choice-text strong {
+  font-size: 13px;
+  line-height: 1.6;
+  font-weight: 500;
+  display: block;
+}
+.choice-text small {
+  font-size: 11px;
+  color: var(--foreground);
+  line-height: 1.65;
+  display: block;
+  margin-top: 4px;
+}
+.choice-check {
+  position: absolute;
+  right: 11px;
+  top: 12px;
+  width: 17px;
+  height: 17px;
+  opacity: 0;
+  color: var(--primary);
+}
+.graphic-choice input:checked + .choice-face {
+  border-color: var(--primary);
+  background: var(--primary-soft);
+}
+.graphic-choice input:checked + .choice-face .choice-check {
+  opacity: 1;
+}
+.graphic-choice input:checked + .choice-face .choice-illustration {
+  background: var(--primary);
+  color: var(--primary-foreground);
+  transform: rotate(0);
+}
+.graphic-choice input:focus-visible + .choice-face {
+  outline: 3px solid var(--primary);
+  outline-offset: 3px;
+}
+.graphic-choice:hover .choice-face {
+  transform: translateY(-2px);
+  border-color: var(--primary);
+}
+.graphic-choices.compact .graphic-choice-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+.graphic-choices.compact .choice-face {
+  min-height: 68px;
+  padding: 12px;
+  flex-direction: row;
+  align-items: center;
+  gap: 12px;
+}
+.graphic-choices.compact .choice-illustration {
+  width: 30px;
+  height: 30px;
+  border-radius: 8px;
+  flex-shrink: 0;
+}
+.graphic-choices.compact .choice-illustration svg {
+  width: 18px;
+  height: 18px;
+}
+.graphic-choices.compact .choice-check {
+  display: none;
+}
+.graphic-choices.compact .choice-text {
+  min-width: 0;
+}
+.graphic-choices.compact .choice-text strong {
+  font-size: 12px;
+  overflow-wrap: anywhere;
+}
+.manager-tools .ui-disclosure > div {
+  display: block !important;
+}
+.manager-tools .graphic-choices {
+  width: 100%;
+  margin-bottom: 18px;
+}
+.option-visual-heading {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+  margin: 0 0 14px;
+}
+.option-visual-heading > span {
+  width: 40px;
+  height: 40px;
+  flex-shrink: 0;
+  display: grid;
+  place-items: center;
+  border-radius: 12px;
+  background: var(--primary-soft);
+  color: var(--primary);
+}
+.option-visual-heading svg {
+  width: 22px;
+}
+.option-visual-heading h3,
+.option-visual-heading label {
+  font-size: 15px !important;
+  font-weight: 500;
+  margin: 0 !important;
+}
+.option-visual-heading p {
+  font-size: 12px;
+  line-height: 1.7;
+  color: var(--muted-foreground);
+  margin: 3px 0 0;
+}
+.graphic-toggle {
+  position: relative;
+  border: 1px solid var(--border-strong);
+  border-radius: 12px;
+  padding: 14px;
+  display: flex !important;
+  gap: 12px;
+  cursor: pointer;
+  align-items: center;
+}
+.graphic-toggle input {
+  position: absolute;
+  opacity: 0;
+  width: 1px !important;
+  height: 1px !important;
+  min-height: 0 !important;
+}
+.toggle-drawing {
+  width: 40px;
+  height: 24px;
+  border-radius: 20px;
+  background: var(--border-strong);
+  flex-shrink: 0;
+  position: relative;
+  transition: background 0.2s;
+}
+.toggle-drawing:before {
+  content: '';
+  position: absolute;
+  left: 3px;
+  top: 3px;
+  width: 18px;
+  height: 18px;
+  background: var(--surface);
+  border-radius: 50%;
+  transition: transform 0.2s;
+}
+.toggle-drawing svg {
+  position: absolute;
+  right: 5px;
+  top: 5px;
+  width: 13px;
+  opacity: 0;
+  color: var(--primary-foreground);
+}
+.graphic-toggle input:checked + .toggle-drawing {
+  background: var(--primary);
+}
+.graphic-toggle input:checked + .toggle-drawing:before {
+  transform: translateX(16px);
+}
+.graphic-toggle input:focus-visible + .toggle-drawing {
+  outline: 3px solid var(--primary);
+  outline-offset: 3px;
+}
+.graphic-toggle strong {
+  font-size: 13px;
+  font-weight: 500;
+  display: block;
+}
+.graphic-toggle small {
+  display: block;
+  color: var(--muted-foreground);
+  font-size: 11px;
+  line-height: 1.65;
+  margin-top: 4px;
+}
+.date-time-field {
+  margin-top: 18px;
+}
+.date-trigger {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: var(--surface);
+  border: 1px solid var(--border-strong);
+  border-radius: 10px;
+  padding: 12px;
+  color: var(--foreground);
+  width: 100%;
+  min-height: 50px;
+  text-align: left;
+  font-size: 13px;
+}
+.date-trigger svg {
+  width: 20px;
+  flex-shrink: 0;
+  color: var(--primary);
+}
+.date-trigger svg:last-child {
+  width: 14px;
+  margin-left: auto;
+}
+.date-trigger[data-invalid='true'] {
+  border-color: var(--destructive);
+}
+.calendar-panel {
+  margin-top: 10px;
+  border: 1px solid var(--border-strong);
+  border-radius: 14px;
+  padding: 14px;
+  background: var(--surface);
+}
+.date-presets {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  padding-bottom: 12px;
+}
+.date-presets button {
+  background: var(--primary-soft);
+  color: var(--primary);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  min-height: 44px;
+  padding: 8px 10px;
+  font-size: 11px;
+}
+.calendar-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+.calendar-heading strong {
+  font-size: 14px;
+  font-weight: 500;
+}
+.calendar-heading button {
+  display: grid;
+  place-items: center;
+  background: transparent;
+  color: var(--foreground);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  width: 44px;
+  height: 44px;
+}
+.calendar-heading svg {
+  width: 18px;
+}
+.calendar-week,
+.calendar-days {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: 3px;
+}
+.calendar-week span {
+  font-size: 11px;
+  text-align: center;
+  color: var(--muted-foreground);
+  padding: 8px 0;
+}
+.calendar-days button {
+  min-width: 0;
+  min-height: 44px;
+  font-size: 12px;
+  border: 1px solid transparent;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--foreground);
+}
+.calendar-days button:hover:not(:disabled) {
+  border-color: var(--primary);
+  background: var(--primary-soft);
+}
+.calendar-days button[aria-pressed='true'] {
+  background: var(--primary);
+  color: var(--primary-foreground);
+}
+.calendar-days button:disabled {
+  opacity: 0.38;
+  cursor: default;
+}
+.calendar-time {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding-top: 14px;
+  border-top: 1px solid var(--border);
+  margin-top: 10px;
+}
+.calendar-time > svg {
+  width: 18px;
+  color: var(--primary);
+  flex-shrink: 0;
+}
+.calendar-time > span {
+  font-size: 11px;
+  color: var(--muted-foreground);
+  margin-right: auto;
+}
+.settings-dialog .calendar-time input {
+  padding: 8px;
+  width: 48px;
+  min-height: 44px;
+  text-align: center;
+  appearance: textfield;
+}
+.calendar-time input::-webkit-inner-spin-button {
+  appearance: none;
+}
+.calendar-clear {
+  font-size: 12px;
+  color: var(--primary);
+  min-height: 44px;
+  background: transparent;
+  border: 0;
+  text-decoration: underline;
+  text-underline-offset: 4px;
+}
+.tour-dialog {
+  width: min(960px, calc(100% - 32px));
+}
+.tour-dialog[open] {
+  grid-template-columns: 1.1fr 1fr;
+}
+.tour-scene {
+  display: flex;
+  flex-direction: column;
+  background: #132838;
+  color: #f7f7f2;
+  min-height: 460px;
+  isolation: isolate;
+}
+.tour-scene:before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse at 65% 25%, #294e6a66, transparent 65%);
+  z-index: -1;
+}
+.scene-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 18px 22px;
+  width: 100%;
+  gap: 12px;
+  font-size: 11px;
+  color: #c2d0da;
+  z-index: 2;
+}
+.scene-replay {
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  flex-shrink: 0;
+  border: 1px solid #456073;
+  background: #1d374b;
+  color: #def198;
+  border-radius: 50%;
+  transition: transform 0.3s;
+}
+.scene-replay:hover {
+  transform: rotate(-30deg);
+}
+.scene-replay svg {
+  width: 19px;
+}
+.journey-viewport {
+  position: relative;
+  flex: 1;
+  width: 100%;
+  min-height: 310px;
+  isolation: isolate;
+}
+.journey-canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+  opacity: 0;
+  transition: opacity 0.3s;
+  touch-action: pan-y;
+  z-index: 2;
+}
+.journey-viewport[data-ready='true'] .journey-canvas {
+  opacity: 1;
+}
+.journey-fallback {
+  display: grid;
+  place-items: center;
+  position: absolute;
+  inset: 0;
+  transition: opacity 0.3s;
+}
+.journey-viewport[data-ready='true'] .journey-fallback {
+  opacity: 0;
+  pointer-events: none;
+}
+.journey-halo {
+  position: absolute;
+  width: 75%;
+  aspect-ratio: 1;
+  left: 12.5%;
+  top: 50%;
+  transform: translateY(-50%);
+  border: 1px solid #5d7b9144;
+  border-radius: 50%;
+  z-index: -1;
+}
+.journey-halo:after {
+  content: '';
+  position: absolute;
+  inset: 13%;
+  border: 1px dashed #5d7b9144;
+  border-radius: 50%;
+}
+.scene-route {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  width: 100%;
+  padding: 18px 16px 25px;
+  gap: 8px;
+}
+.scene-route span {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  color: #bdccda;
+  font-size: 10px;
+  text-align: center;
+  line-height: 1.5;
+}
+.scene-route svg {
+  width: 18px;
+  height: 18px;
+}
+.scene-route span[data-current='true'] {
+  color: #def198;
+}
+.scene-route span + span:before {
+  content: '';
+  height: 1px;
+  background: #52728c;
+  position: absolute;
+  left: -35%;
+  right: 65%;
+  top: 9px;
+}
+.tour-step-picker {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 6px;
+}
+.tour-step-picker button {
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 5px;
+  padding: 10px;
+  font-size: 11px;
+  border-radius: 12px;
+  min-height: 95px;
+  color: var(--foreground);
+  overflow-wrap: anywhere;
+}
+.tour-step-picker button svg {
+  width: 20px;
+  height: 20px;
+}
+.tour-step-picker button span {
+  font-size: 9px;
+  color: var(--muted-foreground);
+}
+.tour-step-picker button[aria-pressed='true'] {
+  color: var(--primary);
+}
+.tour-copy {
+  min-height: 186px;
+}
+.tour-copy h3 {
+  font-size: 29px;
+}
+.tour-disclaimer {
+  font-size: 10px;
+}
+/* The small sculpture stays light and reflects the actual creator state. */
+.link-sculpture {
+  transform-style: preserve-3d;
+}
+.sculpture-orbit {
+  top: 95px;
+  transform: rotateX(35deg) rotateY(-15deg) rotateZ(-24deg);
+}
+.sculpture-ring {
+  border-width: 19px;
+  background: #ffffff08;
+}
+.sculpture-address {
+  box-shadow:
+    1px 1px 0 #e9eef2,
+    2px 2px 0 #e9eef2,
+    3px 3px 0 #bbc8d0,
+    7px 10px 20px #13283822;
+}
+.sculpture-ticket {
+  box-shadow:
+    1px 1px 0 #5778e8,
+    2px 2px 0 #5778e8,
+    4px 4px 0 #193cbb,
+    8px 14px 22px #13283833;
+}
+.sculpture-message {
+  box-shadow:
+    1px 1px 0 #efffc3,
+    3px 4px 0 #adbf70,
+    8px 10px 14px #13283822;
+}
+.sculpture-ticket:after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: linear-gradient(125deg, #ffffff22, transparent 40%);
+  pointer-events: none;
+}
+.link-sculpture[data-stage='1'] .sculpture-orbit {
+  transform: rotateX(20deg) rotateY(-10deg) rotateZ(-22deg) translateY(60px)
+    scale(0.85);
+}
+.link-sculpture[data-stage='2'] .sculpture-orbit {
+  transform: rotateX(25deg) rotateY(10deg) rotateZ(-22deg) translateY(75px)
+    translateX(-25px) scale(0.7);
+}
+.preference-popover.theme-popover {
+  width: 235px;
+  padding: 10px;
+}
+.theme-popover button {
+  min-height: 64px;
+  grid-template-columns: 44px 1fr 17px;
+}
+.theme-popover button > svg:first-child {
+  width: 29px;
+  height: 29px;
+  padding: 5px;
+  background: var(--primary-soft);
+  border-radius: 8px;
+}
+.language-popover button .preference-flag {
+  font-size: 11px;
+  padding: 8px 5px;
+  background: var(--primary-soft);
+  border-radius: 7px;
+}
+@media (min-width: 1100px) {
+  .manager-tools .ui-disclosure > div {
+    min-width: 420px;
+  }
+  .graphic-choices.compact .graphic-choice-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+  .manager-tools .graphic-choices.compact .choice-face {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}
+@media (max-width: 760px) {
+  .tour-dialog[open] {
+    grid-template-columns: 1fr;
+  }
+  .tour-scene {
+    min-height: 280px;
+  }
+  .scene-heading {
+    padding: 8px 16px;
+  }
+  .journey-viewport {
+    min-height: 215px;
+    height: 215px;
+    flex: none;
+  }
+  .scene-route {
+    padding: 6px 14px 15px;
+  }
+  .scene-route span {
+    font-size: 9px;
+  }
+  .scene-route svg {
+    width: 16px;
+  }
+  .tour-story {
+    padding: 20px;
+  }
+  .tour-step-picker button {
+    min-height: 76px;
+    padding: 8px;
+    font-size: 10px;
+  }
+  .tour-step-picker button svg {
+    width: 18px;
+  }
+  .tour-copy {
+    min-height: 0;
+    padding: 20px 0;
+  }
+  .tour-copy h3 {
+    font-size: 23px;
+    margin-bottom: 8px;
+  }
+  .tour-copy p {
+    font-size: 12px;
+  }
+  .tour-foot {
+    margin-top: 7px;
+  }
+  .tour-disclaimer {
+    margin-top: 0;
+  }
+  .journey-fallback .link-sculpture {
+    transform: scale(0.75);
+    transform-origin: center center;
+  }
+  .graphic-choice-grid {
+    gap: 6px;
+  }
+  .choice-face {
+    padding: 12px 9px;
+    min-height: 143px;
+    gap: 11px;
+  }
+  .choice-text strong {
+    font-size: 12px;
+  }
+  .choice-text small {
+    font-size: 11px;
+  }
+  .choice-check {
+    width: 14px;
+    right: 7px;
+    top: 8px;
+  }
+  .calendar-panel {
+    padding: 10px;
+  }
+  .calendar-days {
+    gap: 0;
+  }
+  .calendar-time > span {
+    font-size: 10px;
+  }
+  .settings-dialog .calendar-time input {
+    width: 44px;
+    padding: 6px;
+  }
+  .scene-route span + span:before {
+    left: -20%;
+    right: 80%;
+  }
+  .wordmark .brand-symbol {
+    width: 37px;
+    height: 37px;
+  }
+}
+@media (max-height: 650px) and (max-width: 760px) {
+  .tour-scene {
+    min-height: 225px;
+  }
+  .journey-viewport {
+    height: 165px;
+    min-height: 165px;
+  }
+  .scene-heading {
+    font-size: 10px;
+  }
+  .scene-route {
+    display: none;
+  }
+  .tour-copy h3 {
+    font-size: 21px;
+  }
+  .tour-step-picker button {
+    min-height: 62px;
+  }
+  .tour-story {
+    padding: 16px;
+  }
+  .tour-copy {
+    padding: 15px 0;
+  }
+  .tour-step-picker button svg {
+    display: none;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .wordmark .brand-symbol,
+  .choice-face,
+  .choice-illustration,
+  .toggle-drawing,
+  .toggle-drawing:before,
+  .scene-replay,
+  .journey-canvas,
+  .journey-fallback {
+    transition: none !important;
+    animation: none !important;
+  }
+  .graphic-choice:hover .choice-face {
+    transform: none;
+  }
+}
+
+@media (max-height:680px) and (max-width:759px) {
+ .canvas-create.create-page .create-intro h1,
+ html[lang="th"] .canvas-create.create-page .create-intro h1 {font-size:24px;line-height:1.3;text-wrap:wrap;}
+ .canvas-create .create-intro h1 em {display:block;margin-left:0;}
+ .canvas-create.create-page .create-workspace {gap:8px;}
+ .canvas-create.create-page .link-composer {padding:12px;}
+ .canvas-create .composer-heading {margin-bottom:10px;}
+ .canvas-create .destination-input {min-height:54px;}
+ .canvas-create .destination-input input {min-height:50px;}
+}
+
+@media (max-height:680px) and (max-width:759px) {
+ .canvas-create .field-success {position:absolute;width:1px;height:1px;min-height:0;overflow:hidden;clip-path:inset(50%);margin:0;white-space:nowrap;}
+}
+@media (max-height:680px) and (max-width:759px) {
+ .canvas-create .composer-heading {margin-bottom:8px;}
+ .canvas-create .create-submit {margin-top:12px;}
+ .canvas-create .create-assurance {margin-top:4px;}
+}

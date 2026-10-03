@@ -1,11 +1,293 @@
-import {ImageResponse} from 'next/og';
-import {readFile} from 'node:fs/promises';
-import {join} from 'node:path';
-import {getServerPreferences} from './preferences';
-export async function productCover(help=false){
- const {locale}=await getServerPreferences();const thai=locale==='th';
- const title=help?(thai?'มีเรื่องสงสัย ค่อย ๆ คลายทีละข้อ':'A small question? Let’s untangle it.'):(thai?'ย่อลิงก์ให้สั้น ส่งต่อให้ง่าย':'Make room for the message.');
- const subtitle=help?(thai?'สร้าง · แชร์ · จัดการ · กู้คืน':'Create · Share · Manage · Recover'):(thai?'ลิงก์สั้น · QR Code · ไม่ต้องสมัครบัญชี':'Short links · QR codes · No sign-up');
- const [thaiFont,latinFont]=await Promise.all([readFile(join(process.cwd(),'public/fonts/ibm-plex-sans-thai-thai-500.woff')),readFile(join(process.cwd(),'public/fonts/ibm-plex-sans-thai-latin-500.woff'))]);
- return new ImageResponse(<div style={{display:'flex',position:'relative',width:'100%',height:'100%',background:'#f7f7f2',color:'#172b3a',padding:72,fontFamily:'MemoThai',overflow:'hidden'}}><div style={{display:'flex',flexDirection:'column',justifyContent:'space-between',width:650}}><div style={{display:'flex',alignItems:'center',gap:16,fontSize:30}}><div style={{display:'flex',width:48,height:48,borderRadius:12,background:'#244bd8',color:'white',justifyContent:'center',alignItems:'center'}}>M</div>MemoLink</div><div style={{display:'flex',flexDirection:'column'}}><div style={{display:'flex',fontSize:thai?64:74,lineHeight:1.3,maxWidth:650,letterSpacing:-2}}>{title}</div><div style={{display:'flex',fontSize:25,marginTop:28,color:'#566573'}}>{subtitle}</div></div><div style={{display:'flex',fontSize:18,color:'#566573'}}>l.memolab.me / {help?'help':'create'}</div></div><div style={{display:'flex',position:'absolute',right:55,top:115,width:330,height:260,borderRadius:22,border:'1px solid #cdd7df',background:'#fffefb',boxShadow:'9px 10px 0 #d7dcd9',transform:'rotate(-12deg)',padding:28,color:'#566573',fontSize:20}}>example.com/a-long-story</div><div style={{display:'flex',position:'absolute',right:90,top:240,width:315,height:285,borderRadius:22,background:'#244bd8',boxShadow:'9px 10px 0 #1736a4',transform:'rotate(8deg)',padding:30,flexDirection:'column',color:'white',justifyContent:'space-between'}}><div style={{display:'flex',fontSize:23}}>↗ MemoLink</div><div style={{display:'flex',fontSize:25}}>l.memolab.me/hello</div><div style={{display:'flex',width:'100%',borderTop:'1px solid #ffffff55',paddingTop:18,fontSize:18,color:'#dce995'}}>{thai?'พร้อมส่งต่อ':'Ready to share'} →</div></div><div style={{display:'flex',position:'absolute',right:52,top:165,width:115,height:68,borderRadius:12,background:'#dce995',boxShadow:'5px 6px 0 #acbb63',transform:'rotate(8deg)',justifyContent:'center',alignItems:'center',fontSize:22}}>hello.</div></div>,{width:1200,height:630,fonts:[{name:'MemoThai',data:thaiFont,weight:500},{name:'MemoThai',data:latinFont,weight:500}]});
+import { ImageResponse } from 'next/og';
+import { readFile } from 'node:fs/promises';
+import { join } from 'node:path';
+import { getServerPreferences } from './preferences';
+import MemoLinkMark from '@/components/MemoLinkMark';
+export const coverFonts = Promise.all([
+  readFile(
+    join(process.cwd(), 'public/fonts/ibm-plex-sans-thai-thai-500.woff'),
+  ),
+  readFile(
+    join(process.cwd(), 'public/fonts/ibm-plex-sans-thai-latin-500.woff'),
+  ),
+]);
+export async function productCover(help = false) {
+  const { locale } = await getServerPreferences();
+  const thai = locale === 'th';
+  const [thaiFont, latinFont] = await coverFonts;
+  const first = help
+    ? thai
+      ? 'มีเรื่องสงสัย?'
+      : 'A small question?'
+    : thai
+      ? 'ย่อลิงก์ให้สั้น'
+      : 'A little link.';
+  const second = help
+    ? thai
+      ? 'ค่อย ๆ คลายทีละข้อ'
+      : 'Let’s untangle it.'
+    : thai
+      ? 'ส่งต่อให้ง่าย'
+      : 'A lot to share.';
+  const caption = help
+    ? thai
+      ? 'สร้าง แชร์ จัดการ — หาคำตอบได้ที่นี่'
+      : 'Create, share, manage. Find your next step.'
+    : thai
+      ? 'ลิงก์สั้น · QR Code · ไม่ต้องสมัครบัญชี'
+      : 'Short links · QR codes · No sign-up';
+  return new ImageResponse(
+    <div
+      style={{
+        display: 'flex',
+        position: 'relative',
+        width: '100%',
+        height: '100%',
+        background: '#132838',
+        color: '#fffdf6',
+        padding: 60,
+        fontFamily: 'MemoThai',
+        overflow: 'hidden',
+      }}
+    >
+      <div
+        style={{
+          display: 'flex',
+          position: 'absolute',
+          right: -150,
+          top: -100,
+          width: 710,
+          height: 710,
+          borderRadius: 355,
+          border: '1px solid #355063',
+        }}
+      />
+      <div
+        style={{
+          display: 'flex',
+          position: 'absolute',
+          right: -90,
+          top: -40,
+          width: 590,
+          height: 590,
+          borderRadius: 295,
+          border: '1px solid #355063',
+        }}
+      />
+      <div
+        style={{
+          display: 'flex',
+          flexDirection: 'column',
+          justifyContent: 'space-between',
+          width: 720,
+          zIndex: 2,
+        }}
+      >
+        <div style={{ display: 'flex', alignItems: 'center', gap: 18 }}>
+          <MemoLinkMark />
+          <span style={{ fontSize: 34 }}>MemoLink</span>
+          <span
+            style={{
+              fontSize: 14,
+              letterSpacing: 2,
+              color: '#b9cad6',
+              marginLeft: 20,
+            }}
+          >
+            {help ? 'THE LITTLE GUIDE' : 'A LITTLE LESS LINK'}
+          </span>
+        </div>
+        <div
+          style={{ display: 'flex', flexDirection: 'column', marginBottom: 10 }}
+        >
+          <div
+            style={{
+              display: 'flex',
+              fontSize: thai ? 68 : 82,
+              lineHeight: 1.25,
+              letterSpacing: -2,
+            }}
+          >
+            {first}
+          </div>
+          <div
+            style={{
+              display: 'flex',
+              fontSize: thai ? 68 : 82,
+              lineHeight: 1.3,
+              letterSpacing: -2,
+              color: '#def198',
+            }}
+          >
+            {second}
+          </div>
+          <div
+            style={{
+              display: 'flex',
+              fontSize: 23,
+              color: '#c2d0da',
+              marginTop: 24,
+              maxWidth: 630,
+            }}
+          >
+            {caption}
+          </div>
+        </div>
+        <div
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: 15,
+            fontSize: 18,
+            color: '#c2d0da',
+          }}
+        >
+          <div
+            style={{
+              display: 'flex',
+              width: 8,
+              height: 8,
+              borderRadius: 4,
+              background: '#def198',
+            }}
+          />
+          l.memolab.me{help ? '/faq' : ''}
+        </div>
+      </div>
+      <div
+        style={{
+          display: 'flex',
+          position: 'absolute',
+          right: 30,
+          top: 80,
+          width: 435,
+          height: 400,
+        }}
+      >
+        <svg width="435" height="400" viewBox="0 0 435 400">
+          <g
+            transform="translate(58 8) rotate(-32 160 185)"
+            fill="none"
+            strokeWidth="46"
+          >
+            <rect
+              x="18"
+              y="52"
+              width="204"
+              height="152"
+              rx="62"
+              stroke="#071925"
+              transform="translate(0 25)"
+            />
+            <rect
+              x="152"
+              y="170"
+              width="204"
+              height="152"
+              rx="62"
+              stroke="#071925"
+              transform="translate(0 25)"
+            />
+            <rect
+              x="18"
+              y="52"
+              width="204"
+              height="152"
+              rx="62"
+              stroke="#2545ae"
+              transform="translate(0 13)"
+            />
+            <rect
+              x="152"
+              y="170"
+              width="204"
+              height="152"
+              rx="62"
+              stroke="#809843"
+              transform="translate(0 13)"
+            />
+            <rect
+              x="18"
+              y="52"
+              width="204"
+              height="152"
+              rx="62"
+              stroke="#6487ff"
+            />
+            <rect
+              x="152"
+              y="170"
+              width="204"
+              height="152"
+              rx="62"
+              stroke="#def198"
+            />
+            <path d="M222 110v32a62 62 0 0 1-62 62" stroke="#6487ff" />
+            <path
+              d="M82 57h70"
+              stroke="#b7caff"
+              strokeWidth="7"
+              strokeLinecap="round"
+            />
+            <path
+              d="M213 175h79"
+              stroke="#f4ffcc"
+              strokeWidth="7"
+              strokeLinecap="round"
+            />
+          </g>
+        </svg>
+      </div>
+      <div
+        style={{
+          display: 'flex',
+          position: 'absolute',
+          right: 45,
+          bottom: 68,
+          width: 370,
+          height: 98,
+          borderRadius: 18,
+          background: '#fffdf6',
+          color: '#172b3a',
+          transform: 'rotate(-5deg)',
+          boxShadow: '7px 10px 0 #071925',
+          padding: 22,
+          flexDirection: 'column',
+          justifyContent: 'space-between',
+        }}
+      >
+        <div style={{ display: 'flex', fontSize: 14, color: '#526373' }}>
+          {thai
+            ? 'จากลิงก์ยาว ๆ สู่คนถัดไป'
+            : 'From a long address to the next person'}
+        </div>
+        <div style={{ display: 'flex', fontSize: 24 }}>
+          l.memolab.me/hello{' '}
+          <svg
+            width="28"
+            height="28"
+            viewBox="0 0 28 28"
+            style={{ marginLeft: 22 }}
+          >
+            <path
+              d="M5 23 23 5M6 5h17v17"
+              fill="none"
+              stroke="#244bd8"
+              strokeWidth="3"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            />
+          </svg>
+        </div>
+      </div>
+    </div>,
+    {
+      width: 1200,
+      height: 630,
+      fonts: [
+        { name: 'MemoThai', data: thaiFont, weight: 500 },
+        { name: 'MemoThai', data: latinFont, weight: 500 },
+      ],
+    },
+  );
 }

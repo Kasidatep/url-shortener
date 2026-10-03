@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { KeyIcon, LinkIcon, PlusIcon } from '@heroicons/react/24/outline';
+import { KeyIcon, LinkIcon, PlusIcon, Squares2X2Icon, CheckCircleIcon, PauseCircleIcon, ClockIcon, ArrowDownIcon, ArrowUpIcon, ChartBarIcon } from '@heroicons/react/24/outline';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import AppHeader from '@/components/AppHeader';
 import ConfirmDialog from '@/components/ConfirmDialog';
@@ -17,6 +17,7 @@ import LinkListItem,{LinkItem,linkStatus} from '@/components/links/LinkListItem'
 import ListSkeleton from '@/components/ui/ListSkeleton';
 import SearchInput from '@/components/ui/SearchInput';
 import Disclosure from '@/components/ui/Disclosure';
+import GraphicChoices from '@/components/ui/GraphicChoices';
 import ShareKit from '@/components/ShareKit';
 import {utilityMessages} from '@/config/utility-i18n';
 import {studioMessages} from '@/config/studio-i18n';
@@ -115,7 +116,7 @@ export default function ManagePage() {
       <header className="dashboard-head"><div><p className="kicker">{studio.manageEyebrow}</p><h1>{canvas.manageTitle}</h1><p>{canvas.manageBody}</p></div><Link href="/" className="ui-button primary"><PlusIcon aria-hidden="true"/>{text.navCreate}</Link></header>
       <p className="device-notice"><KeyIcon aria-hidden="true"/><span>{canvas.deviceNote} <a href="#recovery" onClick={()=>setRecoveryOpen(true)}>{text.recovery} ↗</a></span></p>
       <LinkSummary count={links.length} clicks={totals.clicks} active={totals.active} pending={loading||loadError}/>
-      <div className="manager-tools"><SearchInput value={query} onChange={setQuery} label={copy.search} clearLabel={copy.all}/><Disclosure label={copy.filters}><label>{copy.filters}<select value={filter} onChange={e=>setFilter(e.target.value)}><option value="all">{copy.all}</option><option value="active">{text.live}</option><option value="paused">{text.paused}</option><option value="expired">{copy.expired}</option></select></label><label>{copy.newest} / {copy.popular}<select value={sort} onChange={e=>setSort(e.target.value)}><option value="newest">{copy.newest}</option><option value="oldest">{copy.oldest}</option><option value="popular">{copy.popular}</option><option value="recent">{copy.recent}</option></select></label></Disclosure></div>
+      <div className="manager-tools"><SearchInput value={query} onChange={setQuery} label={copy.search} clearLabel={copy.all}/><Disclosure label={copy.filters}><GraphicChoices compact label={copy.filters} value={filter} onChange={setFilter} options={[{value:'all',label:copy.all,icon:Squares2X2Icon},{value:'active',label:text.live,icon:CheckCircleIcon},{value:'paused',label:text.paused,icon:PauseCircleIcon},{value:'expired',label:copy.expired,icon:ClockIcon}]}/><GraphicChoices compact label={copy.newest+' / '+copy.popular} value={sort} onChange={setSort} options={[{value:'newest',label:copy.newest,icon:ArrowDownIcon},{value:'oldest',label:copy.oldest,icon:ArrowUpIcon},{value:'popular',label:copy.popular,icon:ChartBarIcon},{value:'recent',label:copy.recent,icon:ClockIcon}]}/></Disclosure></div>
       {!loading&&!loadError&&links.length>0?<div className="collection-heading"><h2>{studio.collection}</h2><span aria-live="polite">{filtered.length} {studio.results}</span></div>:null}
       {!loading&&!loadError&&links.length>=200?<p className="list-limit-note">{studio.listLimit}</p>:null}
       {loadError ? <section className="load-error" role="alert"><h2>{dialog.actionFailed}</h2><p>{text.retryBody}</p><button className="secondary-action" onClick={()=>void load()}>{text.retry}</button></section> : loading ? <ListSkeleton label={text.loadingLinks}/> : links.length === 0 ? <div className="empty-state"><LinkIcon aria-hidden="true"/><h2>{text.noLinks}</h2><p>{copy.emptyHint}</p><Link href="/">{text.createLink} →</Link></div> : <div className="link-list">
