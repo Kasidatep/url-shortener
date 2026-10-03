@@ -1,8 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import {ArrowUpRightIcon} from '@heroicons/react/24/outline';
-import {studioMessages} from '@/config/studio-i18n';
+import {canvasMessages} from '@/config/canvas-i18n';
 import { usePreferences } from './PreferencesProvider';
 
 const labels = {
@@ -16,7 +15,7 @@ const labels = {
 
 export default function AppFooter(){
   const {locale}=usePreferences();
-  const studio=studioMessages[locale];
+  const copy=canvasMessages[locale];
   const text=labels[locale];
-  return <footer className="site-footer"><div className="footer-identity"><div><strong>{studio.footerLine}</strong><p>{studio.footerBody}</p></div><Link href="/#url" className="ui-button secondary">{studio.footerAction}<ArrowUpRightIcon aria-hidden="true"/></Link></div><div className="footer-bottom"><span>MemoLink · {text.product}</span><nav aria-label={text.help}><Link href="/faq">{text.help}</Link><Link href="/privacy">{text.privacy}</Link><Link href="/terms">{text.terms}</Link><a href="https://memolab.me">MemoLab ↗</a></nav></div></footer>;
+  return <footer className="site-footer canvas-footer"><div className="footer-bottom"><span><strong>MemoLink</strong><span>{copy.footer}</span></span><nav aria-label={text.help}><Link href="/faq">{text.help}</Link><a href="https://memolab.me/privacy">{text.privacy}</a><a href="https://memolab.me/terms">{text.terms}</a><a href="https://memolab.me">MemoLab ↗</a></nav></div></footer>;
 }

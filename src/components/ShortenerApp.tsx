@@ -1,8 +1,8 @@
 'use client';
 
 import Link from 'next/link';
-import { useCallback, useEffect, useRef, useState } from 'react';
-import { ArrowRightIcon, ArrowUpRightIcon, CheckIcon, ChevronDownIcon, ClipboardDocumentIcon, LinkIcon, LockClosedIcon, PlusIcon, QrCodeIcon, ShareIcon } from '@heroicons/react/24/outline';
+import { useCallback, useEffect, useRef, useState, useSyncExternalStore } from 'react';
+import { ArrowRightIcon, ArrowUpRightIcon, CheckIcon, AdjustmentsHorizontalIcon, QuestionMarkCircleIcon, ClipboardDocumentIcon, LinkIcon, LockClosedIcon, PlusIcon, QrCodeIcon, ShareIcon } from '@heroicons/react/24/outline';
 import QRCodeComponent from './QRCodeComponent';
 import ShareKit from './ShareKit';
 import AppHeader from './AppHeader';
@@ -13,15 +13,18 @@ import { createMessages } from '@/config/create-i18n';
 import AdvancedLinkSettings from './AdvancedLinkSettings';
 import {normalizeUrlInput} from '@/lib/url-input';
 import {utilityMessages} from '@/config/utility-i18n';
-import {studioMessages} from '@/config/studio-i18n';
-import LinkPlayground from './LinkPlayground';
-import StudioDetails from './StudioDetails';
+import CreateOnboarding,{TOUR_SESSION_KEY} from './CreateOnboarding';
+import ProductDialog from './ProductDialog';
+import LinkSculpture from './LinkSculpture';
+import {canvasMessages} from '@/config/canvas-i18n';
 
 type Expiration = 'none' | 'clicks' | 'datetime';
-type Panel = 'name' | 'access' | 'campaign' | null;
 type Utm = { source: string; medium: string; campaign: string; term: string; content: string };
 const EMPTY_UTM: Utm = { source: '', medium: '', campaign: '', term: '', content: '' };
 const TRACKING_KEYS = ['fbclid', 'gclid', 'dclid', 'msclkid'];
+const subscribeTour=(changed:()=>void)=>{window.addEventListener('storage',changed);return()=>window.removeEventListener('storage',changed);};
+const readTour=()=>{try{return sessionStorage.getItem(TOUR_SESSION_KEY)==='dismissed';}catch{return false;}};
+const serverTour=()=>true;
 
 function prepareUrl(raw: string, clean: boolean, utm: Utm) {
   const parsed = new URL(normalizeUrlInput(raw));
@@ -45,7 +48,6 @@ export default function ShortenerApp() {
   const [expirationType, setExpirationType] = useState<Expiration>('none');
   const [maxClicks, setMaxClicks] = useState('');
   const [expirationDate, setExpirationDate] = useState('');
-  const [panel, setPanel] = useState<Panel>(null);
   const [optionsOpen, setOptionsOpen] = useState(false);
   const [cleanTracking, setCleanTracking] = useState(false);
   const [utm, setUtm] = useState<Utm>(EMPTY_UTM);
@@ -63,16 +65,22 @@ export default function ShortenerApp() {
   const copyTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const hasOptions = !!(alias || password || expirationType !== 'none' || cleanTracking || Object.values(utm).some(value => value.trim()));
   const utility=utilityMessages[locale];
-  const studio=studioMessages[locale];
+  const canvas=canvasMessages[locale];
+  const tourDismissed=useSyncExternalStore(subscribeTour,readTour,serverTour);
+  const [tourOverride,setTourOpen]=useState<boolean|null>(null);
+  const tourOpen=tourOverride??!tourDismissed;
+  const closeTour=useCallback(()=>{try{sessionStorage.setItem(TOUR_SESSION_KEY,'dismissed');}catch{}setTourOpen(false);requestAnimationFrame(()=>urlRef.current?.focus({preventScroll:true}));},[]);
+  const closeOptions=useCallback(()=>setOptionsOpen(false),[]);
+  const closeQr=useCallback(()=>setShowQr(false),[]);
   let validUrl=false; try { normalizeUrlInput(url); validUrl=true; } catch {}
 
-  useEffect(() => { if (error && errorField) document.getElementById(errorField)?.focus(); }, [error, errorField, panel]);
+  useEffect(() => { if (error && errorField) document.getElementById(errorField)?.focus(); }, [error, errorField, optionsOpen]);
   useEffect(() => { if (result) resultRef.current?.focus(); }, [result]);
   useEffect(() => () => { if (copyTimer.current) clearTimeout(copyTimer.current); }, []);
 
   function resetOptions() {
     setAlias(''); setPassword(''); setExpirationType('none'); setMaxClicks(''); setExpirationDate('');
-    setCleanTracking(false); setUtm(EMPTY_UTM); setPanel(null); setOptionsOpen(false); setError('');
+    setCleanTracking(false); setUtm(EMPTY_UTM); setOptionsOpen(false); setError('');
   }
   function another() {
     resetOptions(); setUrl(''); setResult(null); setShowQr(false); setShareOpen(false); setCopied(false);
@@ -87,13 +95,13 @@ export default function ShortenerApp() {
     try { finalUrl = prepareUrl(url, cleanTracking, utm); }
     catch { setErrorField('url'); setError(copy.invalidUrl); urlRef.current?.focus(); return; }
     if (alias && !/^[a-zA-Z0-9][a-zA-Z0-9_-]{2,47}$/.test(alias)) {
-      setOptionsOpen(true); setPanel('name'); setErrorField('alias'); setError(copy.invalidAlias); return;
+      setOptionsOpen(true); setErrorField('alias'); setError(copy.invalidAlias); return;
     }
     if (expirationType === 'clicks' && (!Number.isInteger(Number(maxClicks)) || Number(maxClicks) < 1 || Number(maxClicks) > 1000000)) {
-      setOptionsOpen(true); setPanel('access'); setErrorField('clicks'); setError(copy.invalidClicks); return;
+      setOptionsOpen(true); setErrorField('clicks'); setError(copy.invalidClicks); return;
     }
     if (expirationType === 'datetime' && (!expirationDate || !Number.isFinite(new Date(expirationDate).getTime()) || new Date(expirationDate).getTime() <= Date.now())) {
-      setOptionsOpen(true); setPanel('access'); setErrorField('date'); setError(copy.invalidDate); return;
+      setOptionsOpen(true); setErrorField('date'); setError(copy.invalidDate); return;
     }
     requestPending.current = true; setLoading(true);
     try {
@@ -101,12 +109,12 @@ export default function ShortenerApp() {
         method: 'POST', headers: { 'Content-Type': 'application/json', 'x-device-key': getDeviceKey() },
         body: JSON.stringify({ url: finalUrl, customShortId: alias, password, expirationType, maxClicks, expirationDate }),
       });
-      if (response.status === 409) { setOptionsOpen(true); setPanel('name'); setErrorField('alias'); throw new Error(copy.aliasTaken); }
+      if (response.status === 409) { setOptionsOpen(true); setErrorField('alias'); throw new Error(copy.aliasTaken); }
       if (response.status === 429) throw new Error(copy.rateLimit);
       if (!response.ok) throw new Error(t('createFailed'));
       const data = await response.json();
       if (typeof data.shortUrl !== 'string' || !/^[a-zA-Z0-9_-]{3,48}$/.test(data.shortUrl)) throw new Error(t('createFailed'));
-      setResult({ shortUrl: window.location.origin + '/' + data.shortUrl, destination: finalUrl });
+      setOptionsOpen(false); setResult({ shortUrl: window.location.origin + '/' + data.shortUrl, destination: finalUrl });
       setPassword(''); setShowQr(false); setCopied(false);
     } catch (reason) { setError(reason instanceof Error && [copy.aliasTaken,copy.rateLimit,t('createFailed')].includes(reason.message) ? reason.message : t('createFailed')); }
     finally { requestPending.current = false; setLoading(false); }
@@ -124,38 +132,37 @@ export default function ShortenerApp() {
     } catch { notify(t('clipboardFailed'), 'error'); }
   }
 
-  return <main className="create-page">
+  return <main className="create-page canvas-create">
     <AppHeader active="home"/>
     <section id="main-content" tabIndex={-1} className="create-workspace" aria-labelledby="create-title">
-      <header className="create-intro"><p className="kicker"><span className="brand-dot" aria-hidden="true"/>{studio.eyebrow}</p><h1 id="create-title">{studio.heroFirst}<em>{studio.heroSecond}</em></h1><p>{studio.heroBody}</p><ul className="hero-notes"><li>{studio.free}</li><li>{studio.noSignup}</li><li>{studio.qrIncluded}</li></ul></header>
+      <header className="create-intro"><p className="kicker"><span className="brand-dot" aria-hidden="true"/>{canvas.eyebrow}</p><h1 id="create-title">{canvas.title}<em>{canvas.accent}</em></h1><p>{canvas.body}</p><button type="button" className="tour-reopen" onClick={()=>setTourOpen(true)}><QuestionMarkCircleIcon aria-hidden="true"/>{canvas.help}<ArrowUpRightIcon aria-hidden="true"/></button><div className="create-miniature"><LinkSculpture small stage={result?2:validUrl?1:0}/></div></header>
       <div className="create-surface">
         {!result ? <form onSubmit={submit} noValidate className="link-composer" aria-busy={loading}>
-          <div className="composer-heading"><span className="section-index">↗</span><div><h2>{studio.composerTitle}</h2><p>{studio.composerHint}</p></div></div>
+          <div className="composer-heading"><span className="section-index">↗</span><div><h2>{canvas.composer}</h2><p>{canvas.hint}</p></div></div>
           <fieldset disabled={loading} className="composer-fields">
             <label className="destination-label" htmlFor="url">{t('pasteLongLink')}</label>
             <div className={"destination-input"+(errorField==='url' && error ? ' invalid' : validUrl ? ' valid' : '')}><LinkIcon aria-hidden="true"/><input ref={urlRef} id="url" name="url" type="url" inputMode="url" autoComplete="url" autoCapitalize="none" spellCheck={false} placeholder="example.com/your-link" value={url} onChange={event => { setUrl(event.target.value); setError(''); }} aria-invalid={!!error && errorField==='url'} aria-describedby={error && errorField==='url' ? 'create-error' : undefined} required/><button type="button" onClick={paste}>{t('paste')}</button></div>
             {validUrl && !error ? <p className="field-success" role="status"><CheckIcon aria-hidden="true"/>{utility.valid}</p> : null}
             {error ? <p id="create-error" className="composer-error" role="alert">{error}</p> : null}
             <button className="create-submit" type="submit" disabled={loading}>{loading ? <><i className="create-spinner" aria-hidden="true"/>{t('loading')}</> : <>{t('shorten')}<ArrowRightIcon aria-hidden="true"/></>}</button>
-            <div className="options-heading"><button type="button" aria-expanded={optionsOpen} aria-controls="composer-options" onClick={()=>setOptionsOpen(value=>!value)}>{copy.options}<small>{copy.optional}</small>{hasOptions ? <CheckIcon aria-hidden="true"/> : null}<ChevronDownIcon aria-hidden="true"/></button>{hasOptions ? <button type="button" onClick={resetOptions}>{copy.reset}</button> : null}</div>
-            {optionsOpen ? <AdvancedLinkSettings alias={alias} setAlias={setAlias} password={password} setPassword={setPassword} expirationType={expirationType} setExpirationType={setExpirationType} maxClicks={maxClicks} setMaxClicks={setMaxClicks} expirationDate={expirationDate} setExpirationDate={setExpirationDate} cleanTracking={cleanTracking} setCleanTracking={setCleanTracking} utm={utm} setUtm={setUtm} error={error} errorField={errorField}/> : null}
+            <div className="options-heading"><button type="button" aria-haspopup="dialog" onClick={()=>setOptionsOpen(true)}><AdjustmentsHorizontalIcon aria-hidden="true"/><span>{copy.options}<small>{hasOptions?canvas.configured:canvas.defaultSettings}</small></span>{hasOptions?<span className="settings-indicator" aria-hidden="true">✓</span>:<PlusIcon aria-hidden="true"/>}</button>{hasOptions?<button type="button" onClick={resetOptions}>{copy.reset}</button>:null}</div>
 
           </fieldset>
           <p className="create-assurance"><LockClosedIcon aria-hidden="true"/>{copy.noAccount}</p>
         </form> : <section className="creation-result" aria-labelledby="result-title">
-          <div className="result-success" aria-hidden="true"><CheckIcon/></div><h2 ref={resultRef} tabIndex={-1} id="result-title">{copy.done}</h2><p>{copy.doneHint}</p>
+          <div className="result-success" aria-hidden="true"><CheckIcon/></div><h2 ref={resultRef} tabIndex={-1} id="result-title">{copy.done}</h2><p>{canvas.shareHint}</p>
           <a className="created-url" href={result.shortUrl} target="_blank" rel="noreferrer">{result.shortUrl.replace(/^https?:\/\//,'')}<ArrowUpRightIcon aria-hidden="true"/></a>
           <div className="result-destination"><span>{copy.destination}</span><p title={result.destination}>{result.destination}</p></div>
           <button className="create-submit" type="button" onClick={copyLink}>{copied ? <CheckIcon aria-hidden="true"/> : <ClipboardDocumentIcon aria-hidden="true"/>}<span aria-live="polite">{copied ? t('copied') : t('copy')}</span></button>
-          <div className="created-actions"><button type="button" onClick={()=>setShareOpen(true)}><ShareIcon aria-hidden="true"/>{t('share')}</button><button type="button" aria-expanded={showQr} aria-controls="created-qr" onClick={()=>setShowQr(value=>!value)}><QrCodeIcon aria-hidden="true"/>{t('qr')}</button></div>
-          {showQr ? <div id="created-qr"><QRCodeComponent shortUrl={result.shortUrl}/></div> : null}
+          <div className="created-actions"><button type="button" onClick={()=>setShareOpen(true)}><ShareIcon aria-hidden="true"/>{t('share')}</button><button type="button" aria-expanded={showQr} aria-haspopup="dialog" onClick={()=>setShowQr(value=>!value)}><QrCodeIcon aria-hidden="true"/>{t('qr')}</button></div>
           <p className="recovery-reminder">{copy.recovery} <Link href="/manage">{t('myLinks')}<ArrowUpRightIcon aria-hidden="true"/></Link></p>
           <button className="create-another" type="button" onClick={another}><PlusIcon aria-hidden="true"/>{copy.another}</button>
         </section>}
       </div>
     </section>
-    <LinkPlayground/>
-    <StudioDetails/>
+    <CreateOnboarding open={tourOpen} onClose={closeTour}/>
+    <ProductDialog open={optionsOpen} onClose={closeOptions} title={canvas.settings} id="settings-title" className="settings-dialog"><p className="dialog-intro">{canvas.settingsHint}</p>{error&&errorField!=='url'?<p className="composer-error" id="settings-error" role="alert">{error}</p>:null}<AdvancedLinkSettings alias={alias} setAlias={setAlias} password={password} setPassword={setPassword} expirationType={expirationType} setExpirationType={setExpirationType} maxClicks={maxClicks} setMaxClicks={setMaxClicks} expirationDate={expirationDate} setExpirationDate={setExpirationDate} cleanTracking={cleanTracking} setCleanTracking={setCleanTracking} utm={utm} setUtm={setUtm} error={error} errorField={errorField}/><div className="settings-footer"><button type="button" className="ui-button primary" onClick={closeOptions}>{canvas.apply}<CheckIcon aria-hidden="true"/></button></div></ProductDialog>
+    {result?<ProductDialog open={showQr} onClose={closeQr} title={canvas.qrTitle} id="qr-title" className="qr-dialog"><p className="dialog-intro">{canvas.qrBody}</p><QRCodeComponent shortUrl={result.shortUrl}/></ProductDialog>:null}
     {result ? <ShareKit open={shareOpen} url={result.shortUrl} onClose={closeShare}/> : null}
   </main>;
 }
