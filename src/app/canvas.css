@@ -229,7 +229,7 @@ html[lang="th"] .canvas-create.create-page .create-intro h1 { font-size:clamp(34
 .product-dialog.share-kit>.share-platforms,.product-dialog.share-kit>.share-utility { margin:20px 24px; }
 .product-dialog.share-kit>.share-card-preview { margin:20px 24px 24px; }
 .product-dialog.confirm-dialog { padding:0;width:min(440px,calc(100% - 32px));text-align:left; }
-.confirm-content { padding:24px; }
+.confirm-dialog>.confirm-content { display:block; margin-top:0; padding:24px; }
 .confirm-content>p { font-size:13px;line-height:1.8;color:var(--muted-foreground); }
 .confirm-actions { display:flex;justify-content:flex-end;gap:10px;margin-top:24px; }
 .confirm-actions button { min-height:44px; }
