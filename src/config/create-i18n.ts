@@ -3,7 +3,7 @@ import type { Locale } from './i18n';
 const en = {
   title: 'Shorten a link.',
   description: 'Paste, shorten, share. That’s it.',
-  create: 'Create', share: 'Share', urlHint: 'Use a complete address starting with https:// or http://.',
+  create: 'Create', share: 'Share', urlHint: 'Use example.com or a complete HTTP or HTTPS web address.',
   options: 'Link settings', optional: 'Optional', autoName: 'Choose a name, or let us make one',
   access: 'Password & expiration', accessHint: 'Decide how people can open your link',
   campaignHint: 'Add campaign tags or remove tracking',
@@ -27,7 +27,7 @@ export const createMessages: Record<Locale, Copy> = {
     access:'รหัสผ่านและวันหมดอายุ', accessHint:'กำหนดวิธีเข้าถึงและอายุของลิงก์', campaignHint:'เพิ่มข้อมูลแคมเปญ หรือลบค่าติดตามเดิม',
     aliasHint:'ใช้ภาษาอังกฤษ ตัวเลข - หรือ _ รวม 3–48 ตัว เริ่มต้นด้วยตัวอักษรหรือตัวเลข',
     done:'ลิงก์พร้อมแล้ว', doneHint:'คัดลอกไปวางในแชต โพสต์ หรือส่งต่อได้เลย', destination:'เปิดไปยัง', another:'สร้างลิงก์ใหม่',
-    recovery:'จัดการต่อได้ที่ “ลิงก์ของฉัน” อย่าลืมสำรอง Recovery key ที่หน้านั้นก่อนเปลี่ยนอุปกรณ์',
+    recovery:'จัดการต่อได้ที่ “ลิงก์ของฉัน” อย่าลืมสำรองคีย์กู้คืน ที่หน้านั้นก่อนเปลี่ยนอุปกรณ์',
     noAccount:'ไม่ต้องสมัครบัญชี', help:'ใช้งานอย่างไร?', reset:'ล้างการตั้งค่า',
     invalidUrl:'ลิงก์นี้ยังใช้ไม่ได้ ลองใส่ example.com หรือ https://example.com', invalidAlias:'ใช้ภาษาอังกฤษ ตัวเลข - หรือ _ รวม 3–48 ตัว และเริ่มต้นด้วยตัวอักษรหรือตัวเลข',
     invalidClicks:'ใส่จำนวนเต็มตั้งแต่ 1 ถึง 1,000,000 คลิก', invalidDate:'เลือกวันและเวลาที่ยังมาไม่ถึง',

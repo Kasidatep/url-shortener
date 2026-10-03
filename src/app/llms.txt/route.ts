@@ -14,6 +14,12 @@ MemoLink supports custom short names, optional passwords, expiration dates, clic
 - [Privacy policy](https://memolab.me/privacy)
 - [Terms](https://memolab.me/terms)
 
+## ภาษาไทย
+MemoLink เป็นเครื่องมือย่อลิงก์และสร้าง QR Code ฟรีจาก MemoLab ไม่ต้องสมัครบัญชี ตั้งชื่อลิงก์ เพิ่มรหัสผ่าน กำหนดวันหมดอายุ และดูสถิติการเข้าชมแบบรวมได้ เก็บคีย์กู้คืนเป็นความลับเพื่อย้ายสิทธิ์จัดการไปยังอุปกรณ์ใหม่
+
+## Sharing previews
+Public, active links may fetch the destination title and social image for a sharing preview. Protected and expired links use generic previews. Sharing platforms can cache older previews.
+
 ## Scope
 My links is a private management interface, not a public directory. Individual short-link destinations and analytics are not part of this product reference. A password protects access through a short link; it does not secure the destination website itself.
 `;
