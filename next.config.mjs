@@ -31,6 +31,10 @@ const securityHeaders=[
 
 export default withPWA({
   reactStrictMode:true,
+  outputFileTracingIncludes:{
+    '/opengraph-image':['./public/fonts/*.woff'],
+    '/faq/opengraph-image':['./public/fonts/*.woff'],
+  },
   poweredByHeader:false,
   async headers(){return[{source:'/:path*',headers:securityHeaders}];},
 });
