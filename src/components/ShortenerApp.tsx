@@ -10,10 +10,12 @@ import { usePreferences } from './PreferencesProvider';
 import { getDeviceKey } from '@/lib/device';
 import { useNotifications } from './NotificationTray';
 import { createMessages } from '@/config/create-i18n';
-import './shortener.css';
 import AdvancedLinkSettings from './AdvancedLinkSettings';
 import {normalizeUrlInput} from '@/lib/url-input';
 import {utilityMessages} from '@/config/utility-i18n';
+import {studioMessages} from '@/config/studio-i18n';
+import LinkPlayground from './LinkPlayground';
+import StudioDetails from './StudioDetails';
 
 type Expiration = 'none' | 'clicks' | 'datetime';
 type Panel = 'name' | 'access' | 'campaign' | null;
@@ -61,6 +63,7 @@ export default function ShortenerApp() {
   const copyTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const hasOptions = !!(alias || password || expirationType !== 'none' || cleanTracking || Object.values(utm).some(value => value.trim()));
   const utility=utilityMessages[locale];
+  const studio=studioMessages[locale];
   let validUrl=false; try { normalizeUrlInput(url); validUrl=true; } catch {}
 
   useEffect(() => { if (error && errorField) document.getElementById(errorField)?.focus(); }, [error, errorField, panel]);
@@ -124,9 +127,10 @@ export default function ShortenerApp() {
   return <main className="create-page">
     <AppHeader active="home"/>
     <section id="main-content" tabIndex={-1} className="create-workspace" aria-labelledby="create-title">
-      <header className="create-intro"><h1 id="create-title">{copy.title}</h1>{!result ? <p>{copy.description}</p> : null}</header>
+      <header className="create-intro"><p className="kicker"><span className="brand-dot" aria-hidden="true"/>{studio.eyebrow}</p><h1 id="create-title">{studio.heroFirst}<em>{studio.heroSecond}</em></h1><p>{studio.heroBody}</p><ul className="hero-notes"><li>{studio.free}</li><li>{studio.noSignup}</li><li>{studio.qrIncluded}</li></ul></header>
       <div className="create-surface">
         {!result ? <form onSubmit={submit} noValidate className="link-composer" aria-busy={loading}>
+          <div className="composer-heading"><span className="section-index">↗</span><div><h2>{studio.composerTitle}</h2><p>{studio.composerHint}</p></div></div>
           <fieldset disabled={loading} className="composer-fields">
             <label className="destination-label" htmlFor="url">{t('pasteLongLink')}</label>
             <div className={"destination-input"+(errorField==='url' && error ? ' invalid' : validUrl ? ' valid' : '')}><LinkIcon aria-hidden="true"/><input ref={urlRef} id="url" name="url" type="url" inputMode="url" autoComplete="url" autoCapitalize="none" spellCheck={false} placeholder="example.com/your-link" value={url} onChange={event => { setUrl(event.target.value); setError(''); }} aria-invalid={!!error && errorField==='url'} aria-describedby={error && errorField==='url' ? 'create-error' : undefined} required/><button type="button" onClick={paste}>{t('paste')}</button></div>
@@ -150,6 +154,8 @@ export default function ShortenerApp() {
         </section>}
       </div>
     </section>
+    <LinkPlayground/>
+    <StudioDetails/>
     {result ? <ShareKit open={shareOpen} url={result.shortUrl} onClose={closeShare}/> : null}
   </main>;
 }

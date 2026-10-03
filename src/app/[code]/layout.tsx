@@ -11,7 +11,6 @@ export async function generateMetadata({params}:{params:Promise<{code:string}>})
     robots:{index:false,follow:false,nocache:true},
     openGraph:{type:'website',siteName:'MemoLink',title,description,url:'/'+encodeURIComponent(code)},
     twitter:{card:'summary_large_image',title,description},
-    other:{'theme-color':'#6457e8'},
   };
 }
 export default function ShortLinkLayout({children}:{children:React.ReactNode}){return children;}

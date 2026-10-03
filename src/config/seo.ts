@@ -1,0 +1,10 @@
+import type { Locale } from './i18n';
+
+export const seoMessages: Record<Locale, { title: string; description: string; helpTitle: string; helpDescription: string }> = {
+  en: { title:'MemoLink — Free URL Shortener & QR Codes', description:'Shorten a URL, choose a custom name and create a QR code for free. Add passwords or expiry, manage destinations and see aggregate visits. No sign-up needed.', helpTitle:'Short links, QR codes & recovery — Help', helpDescription:'How to create and manage MemoLink short links, save QR codes, add passwords, set expiry, restore link ownership and read aggregate visit statistics.' },
+  th: { title:'MemoLink — ย่อลิงก์และสร้าง QR Code ฟรี', description:'ย่อ URL ให้สั้น ตั้งชื่อลิงก์และสร้าง QR Code ฟรี เลือกรหัสผ่านหรือวันหมดอายุ เปลี่ยนปลายทางและดูยอดเข้าชมได้ ไม่ต้องสมัครบัญชี', helpTitle:'วิธีย่อลิงก์ สร้าง QR Code และกู้คืนลิงก์', helpDescription:'คำตอบเรื่องการย่อลิงก์ แชร์ QR Code ตั้งรหัสผ่าน กำหนดวันหมดอายุ กู้คืนสิทธิ์ด้วยคีย์ และดูสถิติการเข้าชมใน MemoLink' },
+  zh: { title:'MemoLink — 免费短链接与二维码', description:'免费缩短URL，自定义名称并生成二维码。按需添加密码或有效期，管理目标地址并查看汇总访问量，无需注册。', helpTitle:'短链接、二维码与恢复 — 帮助', helpDescription:'了解MemoLink链接创建、二维码分享、密码、有效期、所有权恢复和访问统计。' },
+  ja: { title:'MemoLink — 無料のURL短縮とQRコード', description:'登録不要でURLを短縮し、名前やQRコードを作成。パスワード、有効期限、リンク先の管理と訪問数の確認にも対応。', helpTitle:'短縮URL・QRコード・復旧のヘルプ', helpDescription:'MemoLinkのリンク作成、QRコード、パスワード、有効期限、所有権の復元と訪問数の使い方。' },
+  ko: { title:'MemoLink — 무료 URL 단축 및 QR 코드', description:'가입 없이 URL을 줄이고 이름과 QR 코드를 만드세요. 비밀번호와 만료 설정, 목적지 관리 및 방문 수 확인을 지원해요.', helpTitle:'단축 링크, QR 코드 및 복구 도움말', helpDescription:'MemoLink 링크 만들기, QR 공유, 비밀번호, 만료, 소유권 복구와 방문 통계 안내.' },
+  es: { title:'MemoLink — Acortador de URL y códigos QR gratis', description:'Acorta URL, elige un nombre y crea códigos QR gratis. Añade contraseña o caducidad, gestiona destinos y consulta visitas sin registrarte.', helpTitle:'Enlaces, QR y recuperación — Ayuda', helpDescription:'Cómo crear enlaces en MemoLink, compartir QR, añadir contraseñas, elegir caducidad, recuperar la propiedad y consultar visitas.' },
+};

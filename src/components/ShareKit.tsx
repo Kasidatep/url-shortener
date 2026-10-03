@@ -77,7 +77,7 @@ export default function ShareKit({open,url,onClose}:{open:boolean;url:string;onC
 
   return <div className="dialog-backdrop share-backdrop" role="presentation" onMouseDown={event=>{if(event.target===event.currentTarget)onClose();}}>
     <section ref={dialogRef} className="share-kit" role="dialog" aria-modal="true" aria-labelledby="share-title">
-      <header><div><p className="kicker">MEMOLINK SHARE KIT</p><h2 id="share-title">{copy.shareTitle}</h2><p>{copy.shareBody}</p></div><button type="button" className="share-close" onClick={onClose} aria-label={copy.close}><XMarkIcon/></button></header>
+      <header><div><p className="kicker">MemoLink</p><h2 id="share-title">{copy.shareTitle}</h2><p>{copy.shareBody}</p></div><button type="button" className="share-close" onClick={onClose} aria-label={copy.close}><XMarkIcon/></button></header>
       <div className="share-platforms">{targets.map(target=><button type="button" key={target.name} onClick={()=>openTarget(target)}><span className={'share-platform-mark '+target.className}>{target.mark}</span><span>{target.name}</span></button>)}</div>
       <div className="share-utility">
         <button type="button" onClick={()=>void nativeShare()}><ArrowUpOnSquareIcon/><span>{copy.shareNative}</span></button>
@@ -85,7 +85,7 @@ export default function ShareKit({open,url,onClose}:{open:boolean;url:string;onC
         <button type="button" onClick={()=>void copyCard()}><PhotoIcon/><span>{copy.copyCard}</span></button>
         <a href={'mailto:?subject='+encodeURIComponent('MemoLink')+'&body='+encodeURIComponent(url)}><EnvelopeIcon/><span>{copy.email}</span></a>
       </div>
-      <div className="share-card-preview"><Image src={cardPath} width={600} height={315} unoptimized alt="MemoLink share card"/><div><span>{url}</span><button type="button" onClick={()=>void downloadCard()}><ArrowDownTrayIcon/>{copy.downloadCard}</button></div></div>
+      <div className="share-card-preview"><Image src={cardPath} width={600} height={315} unoptimized alt={copy.shareTitle}/><div><span>{url}</span><button type="button" onClick={()=>void downloadCard()}><ArrowDownTrayIcon/>{copy.downloadCard}</button></div></div>
     </section>
   </div>;
 }
