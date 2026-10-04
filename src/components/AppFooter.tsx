@@ -1,5 +1,6 @@
 'use client';
 
+import { ArrowUpRightIcon } from '@heroicons/react/24/outline';
 import Link from 'next/link';
 import {canvasMessages} from '@/config/canvas-i18n';
 import { usePreferences } from './PreferencesProvider';
@@ -17,5 +18,5 @@ export default function AppFooter(){
   const {locale}=usePreferences();
   const copy=canvasMessages[locale];
   const text=labels[locale];
-  return <footer className="site-footer canvas-footer"><div className="footer-bottom"><span><strong>MemoLink</strong><span>{copy.footer}</span></span><nav aria-label={text.help}><Link href="/faq">{text.help}</Link><a href="https://memolab.me/privacy">{text.privacy}</a><a href="https://memolab.me/terms">{text.terms}</a><a href="https://memolab.me">MemoLab ↗</a></nav></div></footer>;
+  return <footer className="site-footer canvas-footer"><div className="footer-bottom"><span><strong>MemoLink</strong><span>{copy.footer}</span></span><nav aria-label={text.help}><Link href="/faq">{text.help}</Link><a href="https://memolab.me/privacy">{text.privacy}</a><a href="https://memolab.me/terms">{text.terms}</a><a href="https://memolab.me">MemoLab <ArrowUpRightIcon aria-hidden="true"/></a></nav></div></footer>;
 }

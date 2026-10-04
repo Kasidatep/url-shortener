@@ -9,6 +9,7 @@ import {
   EyeSlashIcon,
   LockClosedIcon,
   ArrowUpRightIcon,
+  ArrowRightIcon,
 } from "@heroicons/react/24/outline";
 import PreferenceControls from "@/components/PreferenceControls";
 import MemoLinkLogo from "@/components/MemoLinkLogo";
@@ -231,7 +232,8 @@ export default function ShortLinkPage() {
                   </p>
                 ) : null}
                 <button className="primary-button" disabled={unlocking}>
-                  {unlocking ? system.verifying : text.continue + " →"}
+                  {unlocking ? system.verifying : text.continue}
+                  {!unlocking ? <ArrowRightIcon aria-hidden="true" /> : null}
                 </button>
                 <p className="password-note" id="password-note">
                   <LockClosedIcon aria-hidden="true" />

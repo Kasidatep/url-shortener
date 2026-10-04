@@ -138,14 +138,14 @@ export default function ShortenerApp() {
       <header className="create-intro"><p className="kicker"><span className="brand-dot" aria-hidden="true"/>{canvas.eyebrow}</p><h1 id="create-title">{canvas.title}<em>{canvas.accent}</em></h1><p>{canvas.body}</p><button type="button" className="tour-reopen" onClick={()=>setTourOpen(true)}><QuestionMarkCircleIcon aria-hidden="true"/>{canvas.help}<ArrowUpRightIcon aria-hidden="true"/></button><div className="create-miniature"><LinkSculpture small stage={result?2:validUrl?1:0}/></div></header>
       <div className="create-surface">
         {!result ? <form onSubmit={submit} noValidate className="link-composer" aria-busy={loading}>
-          <div className="composer-heading"><span className="section-index">↗</span><div><h2>{canvas.composer}</h2><p>{canvas.hint}</p></div></div>
+          <div className="composer-heading"><span className="section-index"><ArrowUpRightIcon aria-hidden="true"/></span><div><h2>{canvas.composer}</h2><p>{canvas.hint}</p></div></div>
           <fieldset disabled={loading} className="composer-fields">
             <label className="destination-label" htmlFor="url">{t('pasteLongLink')}</label>
             <div className={"destination-input"+(errorField==='url' && error ? ' invalid' : validUrl ? ' valid' : '')}><LinkIcon aria-hidden="true"/><input ref={urlRef} id="url" name="url" type="url" inputMode="url" autoComplete="url" autoCapitalize="none" spellCheck={false} placeholder="example.com/your-link" value={url} onChange={event => { setUrl(event.target.value); setError(''); }} aria-invalid={!!error && errorField==='url'} aria-describedby={error && errorField==='url' ? 'create-error' : undefined} required/><button type="button" onClick={paste}>{t('paste')}</button></div>
             {validUrl && !error ? <p className="field-success" role="status"><CheckIcon aria-hidden="true"/>{utility.valid}</p> : null}
             {error ? <p id="create-error" className="composer-error" role="alert">{error}</p> : null}
             <button className="create-submit" type="submit" disabled={loading}>{loading ? <><i className="create-spinner" aria-hidden="true"/>{t('loading')}</> : <>{t('shorten')}<ArrowRightIcon aria-hidden="true"/></>}</button>
-            <div className="options-heading"><button type="button" aria-haspopup="dialog" onClick={()=>setOptionsOpen(true)}><AdjustmentsHorizontalIcon aria-hidden="true"/><span>{copy.options}<small>{hasOptions?canvas.configured:canvas.defaultSettings}</small></span>{hasOptions?<span className="settings-indicator" aria-hidden="true">✓</span>:<PlusIcon aria-hidden="true"/>}</button>{hasOptions?<button type="button" onClick={resetOptions}>{copy.reset}</button>:null}</div>
+            <div className="options-heading"><button type="button" aria-haspopup="dialog" onClick={()=>setOptionsOpen(true)}><AdjustmentsHorizontalIcon aria-hidden="true"/><span>{copy.options}<small>{hasOptions?canvas.configured:canvas.defaultSettings}</small></span>{hasOptions?<span className="settings-indicator" aria-hidden="true"><CheckIcon/></span>:<PlusIcon aria-hidden="true"/>}</button>{hasOptions?<button type="button" onClick={resetOptions}>{copy.reset}</button>:null}</div>
 
           </fieldset>
           <p className="create-assurance"><LockClosedIcon aria-hidden="true"/>{copy.noAccount}</p>

@@ -3,6 +3,7 @@ import Link from 'next/link';
 import { useState } from 'react';
 import {
   ArrowRightIcon,
+  ArrowUpRightIcon,
   ArrowPathIcon,
   LinkIcon,
   AdjustmentsHorizontalIcon,
@@ -117,7 +118,7 @@ export default function CreateOnboarding({
             {copy.skip}
           </button>
           <Link href="/faq" onClick={onClose}>
-            {copy.viewHelp} ↗
+            {copy.viewHelp} <ArrowUpRightIcon aria-hidden="true"/>
           </Link>
         </div>
         <p className="tour-disclaimer">{copy.tourNote}</p>

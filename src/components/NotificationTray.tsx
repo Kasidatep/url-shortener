@@ -1,5 +1,6 @@
 'use client';
 
+import { CheckIcon, ExclamationTriangleIcon, ArrowUpRightIcon, XMarkIcon } from '@heroicons/react/24/outline';
 import { createContext, useCallback, useContext, useMemo, useRef, useState } from 'react';
 import { usePreferences } from './PreferencesProvider';
 import { dialogMessages } from '@/config/dialog-i18n';
@@ -21,7 +22,7 @@ export function NotificationProvider({children}:{children:React.ReactNode}){
     window.setTimeout(()=>dismiss(notice.id),3600);
   },[dismiss]);
   const value=useMemo(()=>({notify}),[notify]);
-  return <Context.Provider value={value}>{children}<aside className="notification-tray" aria-live="polite" aria-label={labels.notificationsLabel}>{notices.map(notice=><div className={'notice-toast '+notice.tone} key={notice.id}><span className="notice-icon" aria-hidden="true">{notice.tone==='success'?'✓':notice.tone==='error'?'!':'↗'}</span><p>{notice.message}</p><button aria-label={labels.dismiss} onClick={()=>dismiss(notice.id)}>×</button><i/></div>)}</aside></Context.Provider>;
+  return <Context.Provider value={value}>{children}<aside className="notification-tray" aria-live="polite" aria-label={labels.notificationsLabel}>{notices.map(notice=><div className={'notice-toast '+notice.tone} key={notice.id}><span className="notice-icon" aria-hidden="true">{notice.tone==='success'?<CheckIcon/>:notice.tone==='error'?<ExclamationTriangleIcon/>:<ArrowUpRightIcon/>}</span><p>{notice.message}</p><button aria-label={labels.dismiss} onClick={()=>dismiss(notice.id)}><XMarkIcon aria-hidden="true"/></button><i/></div>)}</aside></Context.Provider>;
 }
 
 export function useNotifications(){const value=useContext(Context);if(!value)throw new Error('useNotifications must be inside NotificationProvider');return value;}
