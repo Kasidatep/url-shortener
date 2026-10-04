@@ -25,9 +25,9 @@ export default function LinkPlayground() {
       <m.div className="example-ticket" key={example} initial={false} animate={{ rotate: -2 }} transition={{ duration: .4, ease: 'easeOut' }}>
         <div className="example-ticket-top"><span>MemoLink</span><ArrowUpRightIcon aria-hidden="true"/></div>
         <div className="example-ticket-body"><strong>/{copy.exampleNames[example]}</strong><QRCodeSVG value={'https://example.com/' + copy.exampleNames[example]} size={64} bgColor="#fffdf7" fgColor="#202c44" marginSize={1} title={copy.example}/></div>
-        <div className="example-ticket-bottom"><span>{labels[example]}</span><span>↗</span></div>
+        <div className="example-ticket-bottom"><span>{labels[example]}</span><span><ArrowUpRightIcon aria-hidden="true"/></span></div>
       </m.div>
-      <span className="stage-sticker" aria-hidden="true">↗</span>
+      <span className="stage-sticker" aria-hidden="true"><ArrowUpRightIcon/></span>
     </div>
     <p className="example-note">{copy.exampleNote}</p>
   </section>;

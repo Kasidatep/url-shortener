@@ -52,7 +52,7 @@ export default function LinkTransitGraphic({
             <i />
           </div>
           <div className="transit-ticket-bottom">
-            <span>↗</span>
+            <ArrowUpRightIcon />
             <Icon />
           </div>
         </div>
