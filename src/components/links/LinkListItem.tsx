@@ -82,6 +82,7 @@ export default function LinkListItem({
   const [destination, setDestination] = useState(item.originalUrl);
   const [busy, setBusy] = useState(false);
   const editTrigger = useRef<HTMLButtonElement>(null);
+  const qrTrigger = useRef<HTMLElement | null>(null);
   useEffect(() => {
     if (!copied) return;
     const timer = setTimeout(() => setCopied(false), 2000);
@@ -106,7 +107,19 @@ export default function LinkListItem({
     onCloseAnalytics();
     setError("");
     if (next === "edit") setDestination(item.originalUrl);
+    if (next === "qr") {
+      qrTrigger.current =
+        document.activeElement instanceof HTMLElement
+          ? document.activeElement
+          : null;
+    }
     setPanel((value) => (value === next ? null : next));
+  }
+  function closeQr() {
+    setPanel(null);
+    requestAnimationFrame(() =>
+      qrTrigger.current?.focus({ preventScroll: true }),
+    );
   }
   async function update(patch: Record<string, unknown>) {
     if (busy) return;
@@ -362,7 +375,7 @@ export default function LinkListItem({
               type="button"
               className="icon-control"
               aria-label={copy.closePanel}
-              onClick={() => setPanel(null)}
+              onClick={closeQr}
             >
               <XMarkIcon aria-hidden="true" />
             </button>
